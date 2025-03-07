@@ -1,0 +1,16 @@
+chakra ui (NAEP uses a similar box model)
+framer motion
+theming/token system
+
+3.7 sonnet thinking might work better for a large task - consider this for spec generation 
+
+create a cursor rules file
+- color tokens
+- baseline instructions
+- cursor.directory - has example rules files
+
+MPC - model context protocol 
+- can configure AI to look at an external database to pull an app or data
+- 
+
+superbase MPC 
