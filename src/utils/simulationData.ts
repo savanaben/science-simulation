@@ -1,4 +1,4 @@
-import { SimulationConfig } from '../config/simulationConfig';
+// import { SimulationConfig } from '../config/simulationConfig'; // Removed unused import
 
 /**
  * This file contains the mapping between input combinations and output values.

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import styled from 'styled-components';
 import { SimulationConfig, InputConfig } from '../../config/simulationConfig';
 // Import Rive types for proper type checking

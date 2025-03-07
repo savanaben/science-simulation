@@ -1,4 +1,4 @@
-import { IntensityLevel } from '../types';
+// import { IntensityLevel } from '../types'; // Removed unused import
 
 /**
  * This file contains the configuration for different simulations.
@@ -54,7 +54,7 @@ export const plantGrowthSimulation: SimulationConfig = {
   id: 'plant-growth',
   name: 'Plant Growth Simulation',
   description: 'Explore how different factors affect plant growth',
-  riveFile: '/animations/plant_simulation_riv.riv', // Updated to use local file
+  riveFile: new URL('../assets/animations/plant_simulation_riv.riv', import.meta.url).href, // Updated to use file from src/assets
   stateMachine: 'State_Machine_1', // Correct state machine name
   inputs: [
     {

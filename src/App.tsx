@@ -231,7 +231,7 @@ function App() {
       </SimulationSelector>
       
       <MainContent>
-        <div>
+      <div>
           <InputPanel 
             simulationConfig={simulationConfig} 
             onInputChange={handleInputChange} 
@@ -243,7 +243,7 @@ function App() {
             Run Simulation
           </RunButton>
           {validationError && <ErrorMessage>{validationError}</ErrorMessage>}
-        </div>
+      </div>
         
         <RiveAnimation
           ref={riveAnimationRef}

@@ -117,13 +117,6 @@ const DeleteButton = styled.button`
   }
 `;
 
-const EmptyMessage = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: #888;
-  font-style: italic;
-`;
-
 const SectionTitle = styled.h3`
   margin-top: 0;
   margin-bottom: 1rem;
