@@ -97,3 +97,17 @@ No changes to the core components are needed!
 ## License
 
 MIT
+
+## Deployment
+
+This project is configured for deployment to GitHub Pages. To deploy:
+
+1. Push your changes to the main branch
+2. GitHub Actions will automatically build and deploy the site
+3. Alternatively, you can manually deploy using:
+
+```bash
+npm run deploy
+```
+
+The site will be available at: https://yourusername.github.io/science-simulation/
