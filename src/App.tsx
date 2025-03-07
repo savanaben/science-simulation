@@ -11,15 +11,19 @@ import Modal from './components/common/Modal';
 
 // Styled components for the App
 const AppContainer = styled.div`
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Arial', sans-serif;
 `;
 
 const Header = styled.header`
-  text-align: center;
   margin-bottom: 2rem;
+`;
+
+const SimulationWrapper = styled.div`
+  border: 1px solid #949494;
+  border-radius: 8px;
+  background-color: #F5F5F5;
+  margin: 0.5rem;
+  padding: 1rem;
 `;
 
 const Title = styled.h1`
@@ -36,26 +40,32 @@ const MainContent = styled.main`
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
 `;
 
+const SimulationGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 const RunButton = styled.button`
-  background-color: #4caf50;
+  background-color: rgb(36, 120, 204);
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 0.75rem 1.5rem;
+  padding: 12px 32px;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   width: 100%;
   
   &:hover {
-    background-color: #45a049;
+    background-color: #509BDF;
   }
   
   &:disabled {
@@ -215,48 +225,49 @@ function App() {
   return (
     <AppContainer>
       <Header>
-        <Title>Science Simulation Tool</Title>
-        {/* <Subtitle>Explore scientific concepts through interactive simulations</Subtitle> */}
+        <SimulationSelector 
+          value={currentSimulationId} 
+          onChange={handleSimulationChange}
+        >
+          {simulations.map(sim => (
+            <option key={sim.id} value={sim.id}>
+              {sim.name}
+            </option>
+          ))}
+        </SimulationSelector>
       </Header>
       
-      <SimulationSelector 
-        value={currentSimulationId} 
-        onChange={handleSimulationChange}
-      >
-        {simulations.map(sim => (
-          <option key={sim.id} value={sim.id}>
-            {sim.name}
-          </option>
-        ))}
-      </SimulationSelector>
-      
-      <MainContent>
-      <div>
-          <InputPanel 
-            simulationConfig={simulationConfig} 
-            onInputChange={handleInputChange} 
-          />
-          <RunButton 
-            onClick={runSimulation} 
-            disabled={!areAllInputsSelected()}
-          >
-            Run Simulation
-          </RunButton>
-          {validationError && <ErrorMessage>{validationError}</ErrorMessage>}
-      </div>
+      <SimulationWrapper>
+        <MainContent>
+          <div>
+            <InputPanel 
+              simulationConfig={simulationConfig} 
+              onInputChange={handleInputChange} 
+            />
+            <RunButton 
+              onClick={runSimulation} 
+              disabled={!areAllInputsSelected()}
+            >
+              Run Simulation
+            </RunButton>
+            {validationError && <ErrorMessage>{validationError}</ErrorMessage>}
+          </div>
+          
+          <SimulationGroup>
+            <RiveAnimation
+              ref={riveAnimationRef}
+              simulationConfig={simulationConfig}
+              inputValues={inputValues}
+            />
+          </SimulationGroup>
+        </MainContent>
         
-        <RiveAnimation
-          ref={riveAnimationRef}
+        <TrialsTable 
           simulationConfig={simulationConfig}
-          inputValues={inputValues}
+          trials={trials} 
+          onDeleteTrial={deleteTrial} 
         />
-      </MainContent>
-      
-      <TrialsTable 
-        simulationConfig={simulationConfig}
-        trials={trials} 
-        onDeleteTrial={deleteTrial} 
-      />
+      </SimulationWrapper>
       
       {/* Max Trials Modal */}
       <Modal

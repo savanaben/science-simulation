@@ -14,17 +14,15 @@ interface InputPanelProps {
 
 // Styled components for the InputPanel
 const Panel = styled.div`
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+
 `;
 
 const Title = styled.h2`
   margin-top: 0;
   margin-bottom: 0.5rem;
-  font-size: 1.25rem;
-  color: #333;
+  font-size: 1rem;
+  text-align: left;
 `;
 
 const Description = styled.p`
@@ -133,7 +131,9 @@ const InputPanel: React.FC<InputPanelProps> = ({
   return (
     <Panel className={className}>
       <Title>{simulationConfig.name}</Title>
-      <Description>{simulationConfig.description}</Description>
+      {simulationConfig.description && (
+        <Description>{simulationConfig.description}</Description>
+      )}
       
       {simulationConfig.inputs.map(renderInputControl)}
     </Panel>

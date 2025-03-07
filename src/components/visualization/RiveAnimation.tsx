@@ -18,13 +18,20 @@ export interface RiveAnimationRef {
   resetAndPlayAnimation: () => void;
 }
 
+// Add the Title styled component
+const Title = styled.h2`
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  text-align: left;
+`;
+
 // Styled container for the Rive animation
 const AnimationContainer = styled.div`
   width: 100%;
   height: 400px;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -41,6 +48,29 @@ const AnimationContainer = styled.div`
     min-width: 300px;
     min-height: 300px;
   }
+`;
+
+const CoverImage = styled.img`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+`;
+
+interface CanvasWrapperProps {
+  isResetting: boolean;
+}
+
+const CanvasWrapper = styled.div<CanvasWrapperProps>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: ${props => props.isResetting ? 0 : 1};
+  transition: opacity 0.3s ease-in-out;
 `;
 
 // Placeholder message when Rive is loading or not available
@@ -71,6 +101,8 @@ const RiveAnimation = forwardRef<RiveAnimationRef, RiveAnimationProps>(({
   const [isAttemptingLoad, setIsAttemptingLoad] = useState(false);
   // Reference to store state machine inputs
   const stateMachineInputsRef = useRef<any[]>([]);
+  // Add state for canvas visibility during reset
+  const [isResetting, setIsResetting] = useState(false);
 
   // Expose methods to parent components via ref
   useImperativeHandle(ref, () => ({
@@ -178,119 +210,73 @@ const RiveAnimation = forwardRef<RiveAnimationRef, RiveAnimationProps>(({
         console.log('Performing combined reset and play operation');
         
         try {
-          // First, ensure we stop any currently playing animation
-          if (riveInstanceRef.current.isPlaying) {
-            riveInstanceRef.current.stop();
-          }
+          // First show the cover image by hiding the canvas
+          setIsResetting(true);
           
-          // Instead of using reset(), we'll recreate the Rive instance
-          // This is a more reliable way to ensure a fresh state
-          const canvas = canvasRef.current;
-          if (!canvas) {
-            console.error('Canvas not available for reset and play');
-            return;
-          }
-          
-          // Clean up the existing instance
-          riveInstanceRef.current.cleanup();
-          
-          // Import Rive dynamically
-          import('@rive-app/react-canvas').then(({ Rive }) => {
-            // Create a new Rive instance
-            const r = new Rive({
-              src: simulationConfig.riveFile,
-              canvas: canvas,
-              stateMachines: simulationConfig.stateMachine,
-              autoplay: false, // Don't play automatically
-              // Use layout to control how the animation fits in the canvas
-              layout: new Layout({
-                fit: Fit.Contain,
-                alignment: Alignment.Center
-              }),
-              onLoad: () => {
-                console.log('Rive instance recreated successfully');
-                riveInstanceRef.current = r;
-                
-                // Use Rive's built-in method to handle high-DPI displays
-                r.resizeDrawingSurfaceToCanvas();
-                console.log('Canvas drawing surface resized for crisp rendering');
-                
-                // Get the state machine inputs
-                try {
-                  const inputs = r.stateMachineInputs(simulationConfig.stateMachine);
-                  if (inputs) {
-                    stateMachineInputsRef.current = inputs;
-                    console.log('State machine inputs initialized:', inputs);
-                    
-                    // Set the input values
-                    updateRiveInputs();
-                    
-                    // Play the animation
-                    r.play();
-                    console.log('Animation started after reset and input setup');
-                  } else {
-                    console.warn('No state machine inputs found after reset');
-                  }
-                } catch (err) {
-                  console.error('Error getting state machine inputs:', err);
-                }
-              },
-              onLoadError: (err) => {
-                console.error('Error recreating Rive instance:', err);
-              }
-            });
-          }).catch(err => {
-            console.error('Error importing Rive for reset and play:', err);
-          });
-        } catch (err) {
-          console.error('Error in reset and play operation:', err);
-          
-          // Fallback approach without using 'this'
-          console.log('Using simplified fallback for animation restart');
-          
-          // Try to restart the animation directly
-          if (riveInstanceRef.current) {
-            // Stop the animation if it's playing
+          // Wait for the fade out transition
+          setTimeout(() => {
+            // Stop any currently playing animation
             if (riveInstanceRef.current.isPlaying) {
               riveInstanceRef.current.stop();
             }
             
-            // Try to reinitialize inputs and play
-            try {
-              // Get fresh state machine inputs
-              const inputs = riveInstanceRef.current.stateMachineInputs(simulationConfig.stateMachine);
-              if (inputs) {
-                stateMachineInputsRef.current = inputs;
-                console.log('Reinitialized state machine inputs in fallback');
-                
-                // Update inputs with current values
-                updateRiveInputs();
-                
-                // Play the animation
-                setTimeout(() => {
-                  if (riveInstanceRef.current) {
-                    riveInstanceRef.current.play();
-                    console.log('Animation restarted in fallback');
-                  }
-                }, 50);
-              } else {
-                console.warn('No state machine inputs found in fallback');
+            // Clean up the existing instance
+            riveInstanceRef.current.cleanup();
+            
+            // Import Rive dynamically
+            import('@rive-app/react-canvas').then(({ Rive }) => {
+              const canvas = canvasRef.current;
+              if (!canvas) {
+                console.error('Canvas not available for reset and play');
+                return;
               }
-            } catch (fallbackErr) {
-              console.error('Error in fallback animation restart:', fallbackErr);
               
-              // Last resort: just try to play
-              try {
-                riveInstanceRef.current.play();
-                console.log('Last resort animation play attempt');
-              } catch (lastErr) {
-                console.error('Failed all animation restart attempts');
-              }
-            }
-          }
+              // Create a new Rive instance
+              const r = new Rive({
+                src: simulationConfig.riveFile,
+                canvas: canvas,
+                stateMachines: simulationConfig.stateMachine,
+                autoplay: false,
+                layout: new Layout({
+                  fit: Fit.Contain,
+                  alignment: Alignment.Center
+                }),
+                onLoad: () => {
+                  console.log('Rive instance recreated successfully');
+                  riveInstanceRef.current = r;
+                  r.resizeDrawingSurfaceToCanvas();
+                  
+                  try {
+                    const inputs = r.stateMachineInputs(simulationConfig.stateMachine);
+                    if (inputs) {
+                      stateMachineInputsRef.current = inputs;
+                      updateRiveInputs();
+                      
+                      // Show the canvas again and play the animation
+                      setIsResetting(false);
+                      setTimeout(() => {
+                        r.play();
+                      }, 700); // Small delay to ensure the fade-in has started
+                    }
+                  } catch (err) {
+                    console.error('Error getting state machine inputs:', err);
+                    setIsResetting(false);
+                  }
+                },
+                onLoadError: (err) => {
+                  console.error('Error recreating Rive instance:', err);
+                  setIsResetting(false);
+                }
+              });
+            }).catch(err => {
+              console.error('Error importing Rive for reset and play:', err);
+              setIsResetting(false);
+            });
+          }, 300); // Match the CSS transition duration
+        } catch (err) {
+          console.error('Error in reset and play operation:', err);
+          setIsResetting(false);
         }
-      } else {
-        console.warn('Rive instance not ready for reset and play');
       }
     }
   }));
@@ -522,25 +508,34 @@ const RiveAnimation = forwardRef<RiveAnimationRef, RiveAnimationProps>(({
   }, [inputValues, isLoaded]);
 
   return (
-    <AnimationContainer className={className}>
-      {error ? (
-        <PlaceholderMessage>
-          {error}. Please check the console for details.
-        </PlaceholderMessage>
-      ) : !isLoaded ? (
-        <PlaceholderMessage>Loading animation...</PlaceholderMessage>
-      ) : null}
-      <canvas 
-        ref={canvasRef} 
-        width="800"
-        height="800"
-        style={{ 
-          width: '100%', 
-          height: '100%',
-          display: 'block' // Prevent extra space below canvas
-        }} 
-      />
-    </AnimationContainer>
+    <>
+      <Title>Simulation</Title>
+      <AnimationContainer className={className}>
+        <CoverImage 
+          src={new URL('../../assets/img/rive_cover.png', import.meta.url).href} 
+          alt="Simulation cover"
+        />
+        <CanvasWrapper isResetting={isResetting}>
+          {error ? (
+            <PlaceholderMessage>
+              {error}. Please check the console for details.
+            </PlaceholderMessage>
+          ) : !isLoaded ? (
+            <PlaceholderMessage>Loading animation...</PlaceholderMessage>
+          ) : null}
+          <canvas 
+            ref={canvasRef} 
+            width="800"
+            height="800"
+            style={{ 
+              width: '100%', 
+              height: '100%',
+              display: 'block'
+            }} 
+          />
+        </CanvasWrapper>
+      </AnimationContainer>
+    </>
   );
 });
 

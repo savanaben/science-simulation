@@ -19,17 +19,18 @@ const DropdownContainer = styled.div`
 `;
 
 const Label = styled.label`
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  font-size: 22px;
+  text-align: left;
 `;
 
 const Select = styled.select`
-  padding: 0.5rem;
+  padding: 0.3rem;
   border-radius: 4px;
   border: 1px solid #ccc;
   background-color: white;
-  font-size: 1rem;
+  font-size: 22px;
+  font-family: 'Calibri', sans-serif;
   cursor: pointer;
   
   &:focus {

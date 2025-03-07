@@ -52,8 +52,8 @@ export interface SimulationConfig {
 // Plant Growth Simulation Configuration
 export const plantGrowthSimulation: SimulationConfig = {
   id: 'plant-growth',
-  name: 'Plant Growth Simulation',
-  description: 'Explore how different factors affect plant growth',
+  name: 'Inputs',
+  description: '',
   riveFile: new URL('../assets/animations/plant_simulation_riv.riv', import.meta.url).href, // Updated to use file from src/assets
   stateMachine: 'State_Machine_1', // Correct state machine name
   inputs: [

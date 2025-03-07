@@ -20,7 +20,6 @@ interface TrialsTableProps {
 
 // Styled components for the TrialsTable
 const TableContainer = styled.div`
-  margin-top: 2rem;
   overflow-x: auto;
 `;
 
@@ -28,11 +27,11 @@ const Table = styled.table`
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid #ddd;
+  border: 1px solid #696969;
 `;
 
 const TableHead = styled.thead`
-  background-color: #f2f2f2;
+  background-color: #E6F1FF;
 `;
 
 interface AnimatedRowProps {
@@ -44,9 +43,7 @@ interface AnimatedRowProps {
 const TableRow = styled.tr<AnimatedRowProps>`
   position: relative;
   
-  &:hover {
-    background-color: #f0f0f0;
-  }
+
   
   /* Only apply transition when animating */
   ${props => props.isAnimating && css`
@@ -75,32 +72,52 @@ const EmptyRow = styled(TableRow)`
 `;
 
 const TableHeader = styled.th`
-  padding: 0.75rem;
+  padding: 0.5rem;
   text-align: left;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid #696969;
+  border-right: 1px solid #696969;
+  font-size: 22px;
+  
+  &:last-child {
+    border-right: none;
+  }
 `;
 
 const TableCell = styled.td`
-  padding: 0.75rem;
-  border-bottom: 1px solid #ddd;
+  padding: 0.5rem;
+  border-bottom: 1px solid #696969;
+  border-right: 1px solid #696969;
   transition: all 300ms ease-out;
+  background-color: white;
+  font-size: 22px;
+  
+  &:last-child {
+    border-right: none;
+  }
 `;
 
 const EmptyCell = styled.td`
-  padding: 0.75rem;
-  border-bottom: 1px solid #ddd;
-  color: #ccc;
+  padding: 0.5rem;
+  border-right: 1px solid #696969;
+  color: #757575;
+  background-color: white;
   font-style: italic;
+  font-size: 22px;
+  
+  &:last-child {
+    border-right: none;
+  }
 `;
 
 const DeleteButton = styled.button`
   background-color: transparent;
   color: #4a90e2; /* Blue color */
-  border: none;
+  border: 1px solid #949494;
   border-radius: 4px;
   width: 32px;
-  height: 32px;
+  height: 35px;
   display: flex;
+  padding: 0.5rem;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -112,15 +129,14 @@ const DeleteButton = styled.button`
   
   /* Image styling */
   img {
-    width: 18px;
-    height: 18px;
+
   }
 `;
 
-const SectionTitle = styled.h3`
+const SectionTitle = styled.h2`
   margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  font-size: 24px;
   color: #333;
 `;
 
@@ -294,7 +310,7 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
   // Always render the table with headers, even if there are no trials
   return (
     <TableContainer className={className}>
-      <SectionTitle>Simulation Results</SectionTitle>
+      <SectionTitle>Data Table</SectionTitle>
       <AnimatedTableContainer>
         <TableWrapper 
           ref={tableWrapperRef}
@@ -308,7 +324,7 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
                 isAnimating={false}
                 animationDuration={animationDuration}
               >
-                <TableHeader>Trial #</TableHeader>
+                <TableHeader>Trial</TableHeader>
                 
                 {/* Dynamic input headers */}
                 {simulationConfig.inputs.map(input => (
@@ -320,7 +336,7 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
                   <TableHeader key={`output-${output.id}`}>{output.label}</TableHeader>
                 ))}
                 
-                <TableHeader>Actions</TableHeader>
+                <TableHeader></TableHeader>
               </TableRow>
             </TableHead>
             <tbody>
@@ -331,7 +347,7 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
                   isAnimating={false}
                   animationDuration={animationDuration}
                 >
-                  <EmptyCell colSpan={totalColumns}>No data yet. Run a simulation to see results.</EmptyCell>
+                  <EmptyCell colSpan={totalColumns}>Select inputs and run a simulation to see results.</EmptyCell>
                 </EmptyRow>
               ) : (
                 // Otherwise, show the trials
@@ -383,7 +399,7 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
                             title="Delete trial"
                             aria-label="Delete trial"
                           >
-                            <img src="/img/trash.svg" alt="Delete" />
+                            <img src={new URL('../../assets/img/trash.svg', import.meta.url).href} alt="Delete" />
                           </DeleteButton>
                         </TableCell>
                       </TableRow>
