@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 import { SimulationConfig } from '../../config/simulationConfig';
 
@@ -16,6 +16,11 @@ interface TrialsTableProps {
   trials: Trial[];
   onDeleteTrial: (id: number) => void;
   className?: string;
+}
+
+// Define props for highlighted rows
+interface HighlightedRowProps {
+  isHighlighted: boolean;
 }
 
 // Styled components for the TrialsTable
@@ -38,12 +43,11 @@ interface AnimatedRowProps {
   translateY: string;
   isAnimating: boolean;
   animationDuration: number;
+  isHighlighted?: boolean;
 }
 
 const TableRow = styled.tr<AnimatedRowProps>`
   position: relative;
-  
-
   
   /* Only apply transition when animating */
   ${props => props.isAnimating && css`
@@ -52,6 +56,37 @@ const TableRow = styled.tr<AnimatedRowProps>`
   
   /* Positioning */
   transform: translateY(${props => props.translateY});
+  
+  /* Highlight effect for new rows */
+  ${props => props.isHighlighted && css`
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      box-shadow: inset 0 0 0 3px #8a2be2; /* Purple outline */
+      background-color: rgba(138, 43, 226, 0.1); /* Light purple background */
+      pointer-events: none;
+      animation: pulseHighlight 1s ease-out forwards;
+      z-index: 1;
+    }
+    
+    @keyframes pulseHighlight {
+      0% {
+        opacity: 1;
+      }
+      70% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+  `}
 `;
 
 // Placeholder row that maintains the space of a deleted row
@@ -72,8 +107,8 @@ const EmptyRow = styled(TableRow)`
 `;
 
 const TableHeader = styled.th`
-  padding: 0.5rem;
-  text-align: left;
+  padding: 0.4rem;
+  text-align: center;
   border-bottom: 2px solid #696969;
   border-right: 1px solid #696969;
   font-size: 22px;
@@ -84,12 +119,19 @@ const TableHeader = styled.th`
 `;
 
 const TableCell = styled.td`
-  padding: 0.5rem;
+  padding: 0.4rem;
   border-bottom: 1px solid #696969;
   border-right: 1px solid #696969;
   transition: all 300ms ease-out;
   background-color: white;
   font-size: 22px;
+  position: relative;
+  z-index: 0;
+  
+  /* Remove bottom border for cells in the last row */
+  tr:last-child & {
+    border-bottom: none;
+  }
   
   &:last-child {
     border-right: none;
@@ -97,12 +139,18 @@ const TableCell = styled.td`
 `;
 
 const EmptyCell = styled.td`
-  padding: 0.5rem;
+  padding: 0.4rem;
   border-right: 1px solid #696969;
+  border-bottom: 1px solid #696969;
   color: #757575;
   background-color: white;
   font-style: italic;
   font-size: 22px;
+  
+  /* Remove bottom border for cells in the last row */
+  tr:last-child & {
+    border-bottom: none;
+  }
   
   &:last-child {
     border-right: none;
@@ -117,7 +165,7 @@ const DeleteButton = styled.button`
   width: 32px;
   height: 35px;
   display: flex;
-  padding: 0.5rem;
+  padding: 0.4rem;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -129,7 +177,23 @@ const DeleteButton = styled.button`
   
   /* Image styling */
   img {
-
+    filter: none; /* Default state - no filter */
+  }
+  
+  /* Disabled state */
+  &:disabled {
+    background-color:rgb(232, 232, 232); /* Light gray fill */
+    cursor: not-allowed;
+    opacity: 1; /* Keep full opacity */
+    border: 1px solid rgb(255, 255, 255);
+    
+    &:hover {
+      background-color: #f0f0f0; /* Keep the same background on hover */
+    }
+    
+    img {
+     filter: grayscale(1) brightness(1.4); /* Blue filter for the trash icon */
+    }
   }
 `;
 
@@ -166,12 +230,12 @@ const AnimatedTableContainer = styled.div`
  * TrialsTable component that displays the results of simulation trials
  * dynamically based on the simulation configuration
  */
-const TrialsTable: React.FC<TrialsTableProps> = ({
+const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
   simulationConfig,
   trials,
   onDeleteTrial,
   className,
-}) => {
+}, ref) => {
   // State to track row positions
   const [rowPositions, setRowPositions] = useState<Record<number, string>>({});
   // State to track which rows are animating
@@ -184,6 +248,10 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
   const [emptyRowAnimating, setEmptyRowAnimating] = useState(false);
   // State to track the empty row position
   const [emptyRowPosition, setEmptyRowPosition] = useState('0');
+  // State to track the newly added row for highlighting
+  const [highlightedRowId, setHighlightedRowId] = useState<number | null>(null);
+  // Ref to track the previous trials length
+  const prevTrialsLengthRef = useRef<number>(0);
   // Ref to store the height of a row for animation calculations
   const rowHeightRef = useRef<number>(0);
   // Ref to the table wrapper element
@@ -304,12 +372,42 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
     }
   }, [trials.length]);
 
+  // Effect to highlight newly added rows
+  useEffect(() => {
+    // Only highlight if a row was added (not deleted)
+    if (trials.length > 0 && trials.length > prevTrialsLengthRef.current) {
+      // Get the latest trial
+      const latestTrial = trials[trials.length - 1];
+      
+      // Set the highlighted row ID
+      setHighlightedRowId(latestTrial.id);
+      
+      // Clear the highlight after the animation duration
+      const highlightTimer = setTimeout(() => {
+        setHighlightedRowId(null);
+      }, 1000); // Match the animation duration in the CSS
+      
+      // Clean up the timer
+      return () => clearTimeout(highlightTimer);
+    }
+  }, [trials]);
+
+  // Effect to update the previous trials length ref
+  useEffect(() => {
+    // Update the ref after the component renders with the new trials
+    const timeoutId = setTimeout(() => {
+      prevTrialsLengthRef.current = trials.length;
+    }, 0);
+    
+    return () => clearTimeout(timeoutId);
+  }, [trials.length]);
+
   // Determine if we should show the empty row
   const shouldShowEmptyRow = trials.length < simulationConfig.maxTrials;
 
   // Always render the table with headers, even if there are no trials
   return (
-    <TableContainer className={className}>
+    <TableContainer className={className} ref={ref}>
       <SectionTitle>Data Table</SectionTitle>
       <AnimatedTableContainer>
         <TableWrapper 
@@ -347,7 +445,27 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
                   isAnimating={false}
                   animationDuration={animationDuration}
                 >
-                  <EmptyCell colSpan={totalColumns}>Select inputs and run a simulation to see results.</EmptyCell>
+                  <TableCell></TableCell>
+                  
+                  {/* Empty cells for inputs */}
+                  {simulationConfig.inputs.map(input => (
+                    <TableCell key={`empty-input-${input.id}`}></TableCell>
+                  ))}
+                  
+                  {/* Empty cells for outputs */}
+                  {simulationConfig.outputs.map(output => (
+                    <TableCell key={`empty-output-${output.id}`}></TableCell>
+                  ))}
+                  
+                  <TableCell>
+                    <DeleteButton 
+                      disabled={true}
+                      title="Delete trial"
+                      aria-label="Delete trial"
+                    >
+                      <img src={new URL('../../assets/img/trash.svg', import.meta.url).href} alt="Delete" />
+                    </DeleteButton>
+                  </TableCell>
                 </EmptyRow>
               ) : (
                 // Otherwise, show the trials
@@ -373,6 +491,8 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
                         isAnimating={animatingRows[trial.id] || false}
                         animationDuration={animationDuration}
                         data-trial-id={trial.id}
+                        data-highlighted={trial.id === highlightedRowId}
+                        isHighlighted={trial.id === highlightedRowId}
                       >
                         <TableCell>{trial.id}</TableCell>
                         
@@ -413,7 +533,27 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
                       isAnimating={emptyRowAnimating}
                       animationDuration={animationDuration}
                     >
-                      <EmptyCell colSpan={totalColumns}>Run another simulation to add data</EmptyCell>
+                      <TableCell></TableCell>
+                      
+                      {/* Empty cells for inputs */}
+                      {simulationConfig.inputs.map(input => (
+                        <TableCell key={`empty-input-${input.id}`}></TableCell>
+                      ))}
+                      
+                      {/* Empty cells for outputs */}
+                      {simulationConfig.outputs.map(output => (
+                        <TableCell key={`empty-output-${output.id}`}></TableCell>
+                      ))}
+                      
+                      <TableCell>
+                        <DeleteButton 
+                          disabled={true}
+                          title="Delete trial"
+                          aria-label="Delete trial"
+                        >
+                          <img src={new URL('../../assets/img/trash.svg', import.meta.url).href} alt="Delete" />
+                        </DeleteButton>
+                      </TableCell>
                     </EmptyRow>
                   )}
                 </>
@@ -424,6 +564,6 @@ const TrialsTable: React.FC<TrialsTableProps> = ({
       </AnimatedTableContainer>
     </TableContainer>
   );
-};
+});
 
 export default TrialsTable; 

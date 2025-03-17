@@ -62,6 +62,7 @@ const CloseButton = styled.button`
 
 const ModalContent = styled.div`
   margin-bottom: 1rem;
+  text-align: left;
 `;
 
 const ModalFooter = styled.div`
@@ -70,7 +71,7 @@ const ModalFooter = styled.div`
 `;
 
 const ActionButton = styled.button`
-  background-color: #4caf50;
+  background-color: rgb(36, 120, 204);
   color: white;
   border: none;
   border-radius: 4px;
@@ -79,7 +80,7 @@ const ActionButton = styled.button`
   cursor: pointer;
   
   &:hover {
-    background-color: #45a049;
+    background-color: rgb(63, 133, 202);
   }
 `;
 

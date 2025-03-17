@@ -47,12 +47,13 @@ export interface SimulationConfig {
   inputs: InputConfig[];
   outputs: OutputConfig[];
   maxTrials: number; // Maximum number of trials allowed
+  animationDuration: number; // Duration of animation in milliseconds before showing results
 }
 
 // Plant Growth Simulation Configuration
 export const plantGrowthSimulation: SimulationConfig = {
   id: 'plant-growth',
-  name: 'Inputs',
+  name: 'Plant Growth Simulation',
   description: '',
   riveFile: new URL('../assets/animations/plant_simulation_riv.riv', import.meta.url).href, // Updated to use file from src/assets
   stateMachine: 'State_Machine_1', // Correct state machine name
@@ -115,12 +116,13 @@ export const plantGrowthSimulation: SimulationConfig = {
     },
   ],
   maxTrials: 6, // Maximum of 6 trials allowed
+  animationDuration: 1000, // 2 seconds for the animation to complete
 };
 
 // Example of a different simulation configuration
 export const weatherSimulation: SimulationConfig = {
   id: 'weather',
-  name: 'Weather Simulation',
+  name: 'Weather Simulation (WIP/not done)',
   description: 'Explore how different factors affect weather patterns',
   riveFile: 'https://example.com/weather.riv', // Placeholder
   stateMachine: 'State_Machine_1', // Updated to match your state machine name
@@ -182,6 +184,7 @@ export const weatherSimulation: SimulationConfig = {
     },
   ],
   maxTrials: 6, // Maximum of 6 trials allowed
+  animationDuration: 1500, // 1.5 seconds for the animation to complete
 };
 
 // Collection of all available simulations

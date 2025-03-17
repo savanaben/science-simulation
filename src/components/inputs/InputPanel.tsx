@@ -9,6 +9,7 @@ import { SimulationConfig, InputConfig, InputControlType } from '../../config/si
 interface InputPanelProps {
   simulationConfig: SimulationConfig;
   onInputChange: (inputId: string, value: string | number) => void;
+  isSimulationRunning?: boolean;
   className?: string;
 }
 
@@ -39,6 +40,7 @@ const Description = styled.p`
 const InputPanel: React.FC<InputPanelProps> = ({
   simulationConfig,
   onInputChange,
+  isSimulationRunning,
   className,
 }) => {
   // State to track all input values
@@ -96,6 +98,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
             options={input.options || []}
             value={value as string}
             onChange={(newValue) => handleInputChange(input.id, newValue)}
+            disabled={isSimulationRunning}
           />
         );
         
@@ -109,6 +112,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
             step={input.step || 1}
             value={value as number}
             onChange={(newValue) => handleInputChange(input.id, newValue)}
+            disabled={isSimulationRunning}
           />
         );
         
@@ -120,6 +124,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
             options={input.options || []}
             value={value as string}
             onChange={(newValue) => handleInputChange(input.id, newValue)}
+            disabled={isSimulationRunning}
           />
         );
         

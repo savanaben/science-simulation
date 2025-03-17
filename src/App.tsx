@@ -15,15 +15,14 @@ const AppContainer = styled.div`
 `;
 
 const Header = styled.header`
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 `;
 
 const SimulationWrapper = styled.div`
   border: 1px solid #949494;
   border-radius: 8px;
   background-color: #F5F5F5;
-  margin: 0.5rem;
-  padding: 1rem;
+  padding: 0.75rem;
 `;
 
 const Title = styled.h1`
@@ -39,7 +38,7 @@ const Subtitle = styled.p`
 const MainContent = styled.main`
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 2rem;
+  gap: 1rem;
   margin-bottom: 1rem;
 
   @media (max-width: 768px) {
@@ -110,8 +109,17 @@ function App() {
   // State for max trials modal
   const [isMaxTrialsModalOpen, setIsMaxTrialsModalOpen] = useState(false);
   
+  // State to track if simulation is running
+  const [isSimulationRunning, setIsSimulationRunning] = useState(false);
+  
+  // State to track if we've already auto-scrolled for the first trial
+  const [hasAutoScrolled, setHasAutoScrolled] = useState(false);
+  
   // Reference to the Rive animation component
   const riveAnimationRef = useRef<RiveAnimationRef>(null);
+  
+  // Reference to the trials table component
+  const trialsTableRef = useRef<HTMLDivElement>(null);
 
   // Initialize input values when the simulation changes
   useEffect(() => {
@@ -173,6 +181,9 @@ function App() {
     
     setValidationError(null);
     
+    // Set simulation running state to true
+    setIsSimulationRunning(true);
+    
     // Get output values based on inputs
     const outputs = getOutputValues(currentSimulationId, inputValues);
     
@@ -192,16 +203,38 @@ function App() {
       outputs: Object.keys(outputs).length > 0 ? outputs : defaultOutputs,
     };
     
-    // Add the trial to the list
-    setTrials(prev => [...prev, newTrial]);
-    
-    // Increment the trial ID
-    setNextTrialId(prev => prev + 1);
-    
     // Use the combined reset and play method for the Rive animation
     if (riveAnimationRef.current) {
       console.log('Triggering reset and play animation with inputs:', inputValues);
       riveAnimationRef.current.resetAndPlayAnimation();
+      
+      // Delay adding the trial data until after the animation completes
+      // 500ms initial delay + animation duration + 500ms pause
+      const totalDelay = 600 + simulationConfig.animationDuration + 800;
+      
+      setTimeout(() => {
+        // Add the trial to the list
+        setTrials(prev => [...prev, newTrial]);
+        
+        // Increment the trial ID
+        setNextTrialId(prev => prev + 1);
+        
+        // Set simulation running state to false
+        setIsSimulationRunning(false);
+        
+        // Auto-scroll to the trials table for the first trial only
+        if (!hasAutoScrolled && trialsTableRef.current) {
+          trialsTableRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setHasAutoScrolled(true);
+        }
+        
+        console.log('Trial data added after animation completed');
+      }, totalDelay);
+    } else {
+      // Fallback if animation ref is not available - add trial immediately
+      setTrials(prev => [...prev, newTrial]);
+      setNextTrialId(prev => prev + 1);
+      setIsSimulationRunning(false);
     }
   };
 
@@ -243,10 +276,11 @@ function App() {
             <InputPanel 
               simulationConfig={simulationConfig} 
               onInputChange={handleInputChange} 
+              isSimulationRunning={isSimulationRunning}
             />
             <RunButton 
               onClick={runSimulation} 
-              disabled={!areAllInputsSelected()}
+              disabled={!areAllInputsSelected() || isSimulationRunning}
             >
               Run Simulation
             </RunButton>
@@ -265,7 +299,8 @@ function App() {
         <TrialsTable 
           simulationConfig={simulationConfig}
           trials={trials} 
-          onDeleteTrial={deleteTrial} 
+          onDeleteTrial={deleteTrial}
+          ref={trialsTableRef}
         />
       </SimulationWrapper>
       

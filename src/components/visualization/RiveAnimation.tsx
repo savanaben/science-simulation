@@ -256,7 +256,7 @@ const RiveAnimation = forwardRef<RiveAnimationRef, RiveAnimationProps>(({
                       setIsResetting(false);
                       setTimeout(() => {
                         r.play();
-                      }, 700); // Small delay to ensure the fade-in has started
+                      }, 500); // Small delay to ensure the fade-in has started
                     }
                   } catch (err) {
                     console.error('Error getting state machine inputs:', err);

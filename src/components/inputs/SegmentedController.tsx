@@ -7,6 +7,7 @@ interface SegmentedControllerProps {
   options: string[];
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
   id?: string;
   className?: string;
 }
@@ -28,11 +29,12 @@ const SegmentedControl = styled.div`
   display: flex;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid #ccc;
+  border: 1px solid #595959;
 `;
 
 interface SegmentProps {
   isActive: boolean;
+  disabled?: boolean;
 }
 
 const Segment = styled.button<SegmentProps>`
@@ -41,15 +43,16 @@ const Segment = styled.button<SegmentProps>`
   border: none;
   background-color: ${(props) => (props.isActive ? '#4a90e2' : 'white')};
   color: ${(props) => (props.isActive ? 'white' : '#333')};
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
   transition: background-color 0.2s, color 0.2s;
+  opacity: ${(props) => (props.disabled ? '0.6' : '1')};
   
   &:not(:last-child) {
     border-right: 1px solid #ccc;
   }
   
   &:hover {
-    background-color: ${(props) => (props.isActive ? '#4a90e2' : '#f0f0f0')};
+    background-color: ${(props) => (props.isActive ? '#4a90e2' : props.disabled ? 'white' : '#f0f0f0')};
   }
 `;
 
@@ -61,6 +64,7 @@ const SegmentedController: React.FC<SegmentedControllerProps> = ({
   options,
   value,
   onChange,
+  disabled,
   id,
   className,
 }) => {
@@ -75,9 +79,10 @@ const SegmentedController: React.FC<SegmentedControllerProps> = ({
           <Segment
             key={option}
             isActive={value === option}
-            onClick={() => onChange(option)}
+            onClick={() => !disabled && onChange(option)}
             role="radio"
             aria-checked={value === option}
+            disabled={disabled}
           >
             {option}
           </Segment>
