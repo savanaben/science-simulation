@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, forwardRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 import { SimulationConfig } from '../../config/simulationConfig';
 
@@ -16,11 +16,6 @@ interface TrialsTableProps {
   trials: Trial[];
   onDeleteTrial: (id: number) => void;
   className?: string;
-}
-
-// Define props for highlighted rows
-interface HighlightedRowProps {
-  isHighlighted: boolean;
 }
 
 // Styled components for the TrialsTable
@@ -127,25 +122,6 @@ const TableCell = styled.td`
   font-size: 22px;
   position: relative;
   z-index: 0;
-  
-  /* Remove bottom border for cells in the last row */
-  tr:last-child & {
-    border-bottom: none;
-  }
-  
-  &:last-child {
-    border-right: none;
-  }
-`;
-
-const EmptyCell = styled.td`
-  padding: 0.4rem;
-  border-right: 1px solid #696969;
-  border-bottom: 1px solid #696969;
-  color: #757575;
-  background-color: white;
-  font-style: italic;
-  font-size: 22px;
   
   /* Remove bottom border for cells in the last row */
   tr:last-child & {
