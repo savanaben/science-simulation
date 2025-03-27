@@ -52,6 +52,25 @@ const SimulationGroup = styled.div`
   align-items: center;
 `;
 
+const InputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const InputTitle = styled.h2`
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  text-align: left;
+`;
+
+const Description = styled.p`
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #666;
+`;
+
 const RunButton = styled.button`
   background-color: rgb(36, 120, 204);
   color: white;
@@ -59,17 +78,20 @@ const RunButton = styled.button`
   border-radius: 4px;
   padding: 12px 32px;
   font-size: 1rem;
+  width: fit-content;
   cursor: pointer;
-  margin-top: 0.5rem;
-  width: 100%;
+  margin-top: 1rem;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s;
   
   &:hover {
-    background-color: #509BDF;
+    background-color: rgb(80, 155, 223);
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.25);
   }
   
   &:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+    box-shadow: none;
   }
 `;
 
@@ -272,7 +294,12 @@ function App() {
       
       <SimulationWrapper>
         <MainContent>
-          <div>
+          <InputContainer>
+            <InputTitle>{simulationConfig.name}</InputTitle>
+            {simulationConfig.description && (
+              <Description>{simulationConfig.description}</Description>
+            )}
+            
             <InputPanel 
               simulationConfig={simulationConfig} 
               onInputChange={handleInputChange} 
@@ -285,7 +312,7 @@ function App() {
               Run Simulation
             </RunButton>
             {validationError && <ErrorMessage>{validationError}</ErrorMessage>}
-          </div>
+          </InputContainer>
           
           <SimulationGroup>
             <RiveAnimation

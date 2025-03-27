@@ -23,6 +23,7 @@ export interface InputConfig {
   min?: number; // For slider
   max?: number; // For slider
   step?: number; // For slider
+  orientation?: 'horizontal' | 'vertical'; // For segmented controller
   // Mapping to Rive input name
   riveInputName?: string;
   // Optional value mapping for string values to numbers
@@ -64,13 +65,13 @@ export const plantGrowthSimulation: SimulationConfig = {
       label: 'Sunlight Intensity',
       controlType: InputControlType.Dropdown,
       defaultValue: '',
-      options: ['Low', 'Medium', 'High'],
+      options: ['Low', 'Mediumoso', 'High'],
       // Correct Rive input name
       riveInputName: 'sunlight_intensity',
       // Mapping string values to numeric values for Rive
       valueMapping: {
         'Low': 1,
-        'Medium': 2,
+        'Mediumoso': 2,
         'High': 3
       }
     },
@@ -123,7 +124,7 @@ export const plantGrowthSimulation: SimulationConfig = {
 export const weatherSimulation: SimulationConfig = {
   id: 'weather',
   name: 'Weather Simulation (WIP/not done)',
-  description: 'Explore how different factors affect weather patterns',
+  description: '',
   riveFile: 'https://example.com/weather.riv', // Placeholder
   stateMachine: 'State_Machine_1', // Updated to match your state machine name
   inputs: [
@@ -132,10 +133,10 @@ export const weatherSimulation: SimulationConfig = {
       name: 'temperature',
       label: 'Temperature',
       controlType: InputControlType.Slider,
-      defaultValue: 70,
+      defaultValue: 0,
       min: 0,
       max: 100,
-      step: 1,
+      step: 25,
       // Mapping to Rive input name
       riveInputName: 'temperature',
       // For sliders, we don't need a value mapping as the numeric value can be used directly
@@ -145,10 +146,10 @@ export const weatherSimulation: SimulationConfig = {
       name: 'humidity',
       label: 'Humidity',
       controlType: InputControlType.Slider,
-      defaultValue: 50,
+      defaultValue: 0,
       min: 0,
       max: 100,
-      step: 1,
+      step: 25,
       // Mapping to Rive input name
       riveInputName: 'humidity',
     },
@@ -158,14 +159,30 @@ export const weatherSimulation: SimulationConfig = {
       label: 'Pressure',
       controlType: InputControlType.SegmentedController,
       defaultValue: '',
-      options: ['Low', 'Normal', 'High'],
+      options: ['Longer Option', 'Longer Option 2'],
+      orientation: 'vertical', // Set to vertical layout
       // Mapping to Rive input name
       riveInputName: 'pressure',
       // Mapping string values to numeric values for Rive
       valueMapping: {
-        'Low': 1,
-        'Normal': 2,
-        'High': 3
+        'Longer Option': 1,
+        'Longer Option 2': 2
+      }
+    },
+    {
+      id: 'water',
+      name: 'water',
+      label: 'Water',
+      controlType: InputControlType.SegmentedController,
+      defaultValue: '',
+      options: ['On', 'Off'],
+      orientation: 'horizontal', // Set to vertical layout
+      // Mapping to Rive input name
+      riveInputName: 'pressure',
+      // Mapping string values to numeric values for Rive
+      valueMapping: {
+        'On': 1,
+        'Off': 2
       }
     },
   ],

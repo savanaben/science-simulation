@@ -115,6 +115,7 @@ const TableHeader = styled.th`
 
 const TableCell = styled.td`
   padding: 0.4rem;
+  text-align: center;
   border-bottom: 1px solid #696969;
   border-right: 1px solid #696969;
   transition: all 300ms ease-out;
@@ -178,6 +179,7 @@ const SectionTitle = styled.h2`
   margin-bottom: 0.5rem;
   font-size: 24px;
   color: #333;
+  text-align: center;
 `;
 
 interface AnimatedTableWrapperProps {

@@ -15,22 +15,15 @@ interface InputPanelProps {
 
 // Styled components for the InputPanel
 const Panel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 
-
-`;
-
-const Title = styled.h2`
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-  text-align: left;
-`;
-
-const Description = styled.p`
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
-  color: #666;
+  @media (max-width: 768px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.3rem;
+  }
 `;
 
 /**
@@ -124,6 +117,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
             options={input.options || []}
             value={value as string}
             onChange={(newValue) => handleInputChange(input.id, newValue)}
+            orientation={input.orientation}
             disabled={isSimulationRunning}
           />
         );
@@ -135,11 +129,6 @@ const InputPanel: React.FC<InputPanelProps> = ({
 
   return (
     <Panel className={className}>
-      <Title>{simulationConfig.name}</Title>
-      {simulationConfig.description && (
-        <Description>{simulationConfig.description}</Description>
-      )}
-      
       {simulationConfig.inputs.map(renderInputControl)}
     </Panel>
   );

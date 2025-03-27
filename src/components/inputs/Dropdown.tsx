@@ -16,7 +16,6 @@ interface DropdownProps {
 const DropdownContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
 `;
 
 const Label = styled.label`
@@ -31,6 +30,7 @@ const Select = styled.select`
   border: 1px solid #595959;
   background-color: white;
   font-size: 22px;
+  width: fit-content;
   font-family: 'Calibri', sans-serif;
   cursor: pointer;
   appearance: none; /* Remove default arrow */
