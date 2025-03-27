@@ -94,10 +94,6 @@ No changes to the core components are needed!
 - Styled Components
 - Rive Animation
 
-## License
-
-MIT
-
 ## Deployment
 
 This project is configured for deployment to GitHub Pages. To deploy:
