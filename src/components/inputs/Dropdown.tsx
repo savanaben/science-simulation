@@ -22,30 +22,34 @@ const Label = styled.label`
   margin-bottom: 0.3rem;
   font-size: 22px;
   text-align: left;
+  color: ${props => props.theme.colors.text.primary};
 `;
 
 const Select = styled.select`
   padding: .14rem 30px .1rem .3rem;
-  border-radius: 4px;
-  border: 1px solid #595959;
-  background-color: white;
+  border-radius: ${props => props.theme.borderRadius};
+  border: 1px solid ${props => props.theme.colors.border.input};
+  background-color: ${props => props.theme.colors.background.input};
+  color: ${props => props.theme.colors.text.primary};
   font-size: 22px;
   width: fit-content;
   font-family: 'Calibri', sans-serif;
   cursor: pointer;
   appearance: none; /* Remove default arrow */
   
-  /* Custom dropdown arrow (caret) */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'><path d='M0 0 L6 6 L12 0 Z' fill='%23595959'/></svg>");
+  /* Custom dropdown arrow (caret) - using SVG with theme-aware color */
+  background-image: ${props => {
+    // SVG must be URI encoded
+    const color = encodeURIComponent(props.theme.colors.border.input);
+    return `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'><path d='M0 0 L6 6 L12 0 Z' fill='${color}'/></svg>")`;
+  }};
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 12px 6px;
   
-
-  
   &:disabled {
-    background-color: #f5f5f5;
-    border: 1px solid rgb(157, 157, 157);
+    background-color: ${props => props.theme.colors.background.disabled};
+    border: 1px solid ${props => props.theme.colors.border.main};
     cursor: not-allowed;
     opacity: 0.7;
   }

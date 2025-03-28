@@ -8,30 +8,42 @@ import { getOutputValues } from './utils/simulationData';
 import { getSimulationById, defaultSimulationId, simulations } from './config/simulationConfig';
 import './App.css';
 import Modal from './components/common/Modal';
+import ThemeToggle from './components/common/ThemeToggle';
+import { announceToScreenReader, generateSimulationAnnouncement, generateCompletionAnnouncement } from './utils/screenReaderUtils';
 
 // Styled components for the App
 const AppContainer = styled.div`
   margin: 0 auto;
+  background-color: ${props => props.theme.colors.background.main};
+  color: ${props => props.theme.colors.text.primary};
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 `;
 
 const Header = styled.header`
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const SimulationWrapper = styled.div`
-  border: 1px solid #949494;
-  border-radius: 8px;
-  background-color: #F5F5F5;
+  border: 1px solid ${props => props.theme.colors.border.main};
+  border-radius: ${props => props.theme.borderRadius};
+  background-color: ${props => props.theme.colors.background.surface};
   padding: 0.75rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  max-width: fit-content;
+  margin: 0 auto;
 `;
 
 const Title = styled.h1`
-  color: #333;
+  color: ${props => props.theme.colors.text.primary};
   margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  color: #666;
+  color: ${props => props.theme.colors.text.secondary};
   font-size: 1.1rem;
 `;
 
@@ -62,20 +74,21 @@ const InputTitle = styled.h2`
   margin-bottom: 0.5rem;
   font-size: 1rem;
   text-align: left;
+  color: ${props => props.theme.colors.text.primary};
 `;
 
 const Description = styled.p`
   margin-top: 0;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
-  color: #666;
+  color: ${props => props.theme.colors.text.secondary};
 `;
 
 const RunButton = styled.button`
-  background-color: rgb(36, 120, 204);
-  color: white;
-  border: none;
-  border-radius: 4px;
+  background-color: ${props => props.theme.colors.primaryBlue.button};
+  color: ${props => props.theme.colors.text.onPrimary};
+  border: 2px solid ${props => props.theme.colors.primaryBlue.border};
+  border-radius: ${props => props.theme.borderRadius};
   padding: 12px 32px;
   font-size: 1rem;
   width: fit-content;
@@ -84,30 +97,34 @@ const RunButton = styled.button`
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s;
   
   &:hover {
-    background-color: rgb(80, 155, 223);
+    background-color: ${props => props.theme.colors.primaryBlue.hover};
+    border-color: ${props => props.theme.colors.primaryBlue.hover};
     box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.25);
   }
   
   &:disabled {
-    background-color: #cccccc;
+    background-color: ${props => props.theme.colors.background.disabled};
+    border-color: ${props => props.theme.colors.background.disabled};
     cursor: not-allowed;
     box-shadow: none;
+    color: ${props => props.theme.colors.text.disabled};
   }
 `;
 
 const ErrorMessage = styled.div`
-  color: #ff4d4f;
+  color: ${props => props.theme.colors.error};
   margin-top: 0.5rem;
   font-size: 0.9rem;
 `;
 
 const SimulationSelector = styled.select`
   padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: white;
+  border-radius: ${props => props.theme.borderRadius};
+  border: 1px solid ${props => props.theme.colors.border.input};
+  background-color: ${props => props.theme.colors.background.input};
+  color: ${props => props.theme.colors.text.primary};
   font-size: 1rem;
-  margin-bottom: 1rem;
+  margin-right: 1rem;
   width: 100%;
 `;
 
@@ -225,6 +242,18 @@ function App() {
       outputs: Object.keys(outputs).length > 0 ? outputs : defaultOutputs,
     };
     
+    // Announce to screen readers immediately when the button is clicked
+    // The row number will be the current trials length + 1
+    const rowNumber = trials.length + 1;
+    const announcement = generateSimulationAnnouncement(
+      simulationConfig,
+      inputValues,
+      nextTrialId,
+      rowNumber
+    );
+    
+    announceToScreenReader(announcement);
+    
     // Use the combined reset and play method for the Rive animation
     if (riveAnimationRef.current) {
       console.log('Triggering reset and play animation with inputs:', inputValues);
@@ -250,6 +279,14 @@ function App() {
           setHasAutoScrolled(true);
         }
         
+        // The initial screen reader announcement is done at button click,
+        // but we also announce the completion
+        const completionAnnouncement = generateCompletionAnnouncement(
+          nextTrialId,
+          rowNumber
+        );
+        announceToScreenReader(completionAnnouncement);
+        
         console.log('Trial data added after animation completed');
       }, totalDelay);
     } else {
@@ -257,6 +294,17 @@ function App() {
       setTrials(prev => [...prev, newTrial]);
       setNextTrialId(prev => prev + 1);
       setIsSimulationRunning(false);
+      
+      // The initial screen reader announcement is already handled above
+      // Add a completion announcement for the fallback case as well
+      setTimeout(() => {
+        const rowNumber = trials.length + 1;
+        const completionAnnouncement = generateCompletionAnnouncement(
+          nextTrialId,
+          rowNumber
+        );
+        announceToScreenReader(completionAnnouncement);
+      }, 1000); // Short delay to separate the two announcements
     }
   };
 
@@ -290,6 +338,7 @@ function App() {
             </option>
           ))}
         </SimulationSelector>
+        <ThemeToggle />
       </Header>
       
       <SimulationWrapper>
@@ -308,6 +357,7 @@ function App() {
             <RunButton 
               onClick={runSimulation} 
               disabled={!areAllInputsSelected() || isSimulationRunning}
+              aria-label="Run Simulation with current inputs"
             >
               Run Simulation
             </RunButton>

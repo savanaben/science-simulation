@@ -36,45 +36,84 @@ const SegmentedControl = styled.div<SegmentedControlProps>`
   flex-direction: ${props => props.orientation === 'vertical' ? 'column' : 'row'};
   border-radius: 6px;
   overflow: hidden;
-  border: 2px solid rgb(144, 144, 144);
   width: fit-content;
   min-width: 150px;
+  position: relative;
 `;
 
 interface SegmentProps {
   isActive: boolean;
+  isFirst: boolean;
+  isLast: boolean;
   disabled?: boolean;
   orientation: 'horizontal' | 'vertical';
   isFocused?: boolean;
+  isNextActive?: boolean;
+  isPrevActive?: boolean;
 }
+
+// Remove these constant color definitions since we'll use theme values
+// const BORDER_GRAY = 'rgb(144, 144, 144)';
+// const BORDER_BLUE = 'rgb(36, 120, 204)';
+// const BG_BLUE = 'rgb(36, 120, 204)';
 
 const Segment = styled.button<SegmentProps>`
   flex: ${props => props.orientation === 'horizontal' ? '1' : 'initial'};
   padding: 0.5rem;
-  border: none;
-  border-radius: 0px;
-  background-color: ${(props) => (props.isActive ? 'rgb(36, 120, 204)' : 'white')};
-  color: ${(props) => (props.isActive ? 'white' : 'rgb(36, 120, 204)')}; /* Blue text when not active */
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
-  transition: background-color 0.2s, color 0.2s;
-  opacity: ${(props) => (props.disabled ? '0.6' : '1')};
+  background-color: ${props => props.isActive 
+    ? props.theme.colors.primaryBlue.button 
+    : props.theme.colors.background.main};
+  color: ${props => props.isActive 
+    ? props.theme.colors.text.onPrimary 
+    : props.theme.colors.primaryBlue.text};
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  opacity: ${props => props.disabled ? '0.6' : '1'};
   text-align: ${props => props.orientation === 'vertical' ? 'left' : 'center'};
   position: relative;
+  z-index: ${props => props.isActive ? 2 : 1};
+  
+  /* Border styles */
+  border: 2px solid ${props => props.isActive 
+    ? props.theme.colors.primaryBlue.border 
+    : props.theme.colors.border.main};
+  
+  /* Handle border radius for first and last segments */
+  border-top-left-radius: ${props => 
+    (props.orientation === 'horizontal' && props.isFirst) || 
+    (props.orientation === 'vertical' && props.isFirst) ? props.theme.borderRadius : '0'};
+  border-top-right-radius: ${props => 
+    (props.orientation === 'horizontal' && props.isLast) || 
+    (props.orientation === 'vertical' && props.isFirst) ? props.theme.borderRadius : '0'};
+  border-bottom-left-radius: ${props => 
+    (props.orientation === 'horizontal' && props.isFirst) || 
+    (props.orientation === 'vertical' && props.isLast) ? props.theme.borderRadius : '0'};
+  border-bottom-right-radius: ${props => 
+    (props.orientation === 'horizontal' && props.isLast) || 
+    (props.orientation === 'vertical' && props.isLast) ? props.theme.borderRadius : '0'};
+
+  /* Collapse borders */
+  ${props => props.orientation === 'horizontal' && !props.isFirst ? `margin-left: -2px;` : ''}
+  ${props => props.orientation === 'vertical' && !props.isFirst ? `margin-top: -2px;` : ''}
   
   /* Focus style when using keyboard navigation */
   ${props => props.isFocused && `
-    outline: 2px solid rgb(0, 0, 0);
+    outline: 2px solid ${props.theme.colors.border.focus};
     outline-offset: -2px;
-    z-index: 1;
+    z-index: 3;
   `}
   
-  /* Add borders between segments */
-  &:not(:last-child) {
-    border-${props => props.orientation === 'horizontal' ? 'right' : 'bottom'}: 2px solid rgb(144, 144, 144);
-  }
+  /* Ensure active segments are on top to show their borders */
+  ${props => props.isActive && `
+    z-index: 2;
+  `}
   
   &:hover {
-    background-color: ${(props) => (props.isActive ? 'rgb(36, 120, 204)' : props.disabled ? 'white' : '#f0f0f0')};
+    background-color: ${props => props.isActive 
+      ? props.theme.colors.primaryBlue.hover 
+      : props.disabled 
+        ? props.theme.colors.background.main 
+        : props.theme.colors.background.hover};
   }
 `;
 
@@ -128,11 +167,19 @@ const SegmentedController: React.FC<SegmentedControllerProps> = ({
         {options.map((option, index) => {
           const isSelected = value === option;
           const optionId = `${uniqueId}-option-${index}`;
+          const isFirst = index === 0;
+          const isLast = index === options.length - 1;
+          const isPrevOptionActive = index > 0 ? value === options[index - 1] : false;
+          const isNextOptionActive = index < options.length - 1 ? value === options[index + 1] : false;
           
           return (
             <Segment
               key={option}
               isActive={isSelected}
+              isFirst={isFirst}
+              isLast={isLast}
+              isPrevActive={isPrevOptionActive}
+              isNextActive={isNextOptionActive}
               isFocused={focusedIndex === index}
               onClick={() => !disabled && onChange(option)}
               aria-checked={isSelected}

@@ -25,8 +25,8 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-  background-color: white;
-  border-radius: 8px;
+  background-color: ${props => props.theme.colors.background.main};
+  border-radius: ${props => props.theme.borderRadius};
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 90%;
   max-width: 500px;
@@ -45,7 +45,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
   margin: 0;
   font-size: 1.25rem;
-  color: #333;
+  color: ${props => props.theme.colors.text.primary};
 `;
 
 const CloseButton = styled.button`
@@ -53,16 +53,17 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: ${props => props.theme.colors.text.secondary};
   
   &:hover {
-    color: #333;
+    color: ${props => props.theme.colors.text.primary};
   }
 `;
 
 const ModalContent = styled.div`
   margin-bottom: 1rem;
   text-align: left;
+  color: ${props => props.theme.colors.text.primary};
 `;
 
 const ModalFooter = styled.div`
@@ -71,16 +72,16 @@ const ModalFooter = styled.div`
 `;
 
 const ActionButton = styled.button`
-  background-color: rgb(36, 120, 204);
-  color: white;
+  background-color: ${props => props.theme.colors.primaryBlue.button};
+  color: ${props => props.theme.colors.text.onPrimary};
   border: none;
-  border-radius: 4px;
+  border-radius: ${props => props.theme.borderRadius};
   padding: 0.5rem 1rem;
   font-size: 1rem;
   cursor: pointer;
   
   &:hover {
-    background-color: rgb(63, 133, 202);
+    background-color: ${props => props.theme.colors.primaryBlue.hover};
   }
 `;
 

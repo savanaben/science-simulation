@@ -159,14 +159,15 @@ export const weatherSimulation: SimulationConfig = {
       label: 'Pressure',
       controlType: InputControlType.SegmentedController,
       defaultValue: '',
-      options: ['Longer Option', 'Longer Option 2'],
+      options: ['Longer Option', 'Longer Option 2', 'Longer Option 3'],
       orientation: 'vertical', // Set to vertical layout
       // Mapping to Rive input name
       riveInputName: 'pressure',
       // Mapping string values to numeric values for Rive
       valueMapping: {
         'Longer Option': 1,
-        'Longer Option 2': 2
+        'Longer Option 2': 2,
+        'Longer Option 3': 3
       }
     },
     {

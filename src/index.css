@@ -5,9 +5,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  /* Remove fixed colors here - will be controlled by ThemeProvider */
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -17,6 +16,7 @@
 html {
   font-size: 24px;
   font-family: Calibri, Arial, sans-serif;
+  height: 100%;
 }
 
 a {
@@ -33,6 +33,8 @@ body {
   display: flex;
   min-width: 320px;
   min-height: 100vh;
+  width: 100%;
+  /* Remove background-color from here - will be controlled by ThemeProvider */
 }
 
 h1 {
@@ -51,9 +53,7 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
-  border-color: #646cff;
-}
+
 button:focus {
   outline: none;
 }
@@ -61,10 +61,14 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+#root {
+  width: 100%;
+  height: 100%;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    /* Remove fixed colors here - will be controlled by ThemeProvider */
   }
   a:hover {
     color: #747bff;

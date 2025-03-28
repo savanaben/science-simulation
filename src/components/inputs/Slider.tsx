@@ -56,7 +56,7 @@ const SliderInput = styled.input`
   width: 100%;
   height: 100%; /* Full height of container for larger touch target */
   box-shadow: none; /* Remove shadow since we'll add a visual track */
-  border-radius: 6px;
+  border-radius: ${props => props.theme.borderRadius};
   background: transparent; /* Make the input transparent */
   z-index: 2;
   box-sizing: border-box;
@@ -70,7 +70,7 @@ const SliderInput = styled.input`
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #4a90e2;
+    background: ${props => props.theme.colors.primary};
     cursor: ew-resize;
     transition: transform 0.15s ease-out;
     transform: scale(1);
@@ -81,7 +81,7 @@ const SliderInput = styled.input`
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #4a90e2;
+    background: ${props => props.theme.colors.primary};
     cursor: ew-resize;
     transition: transform 0.15s ease-out;
     transform: scale(1);
@@ -89,16 +89,16 @@ const SliderInput = styled.input`
   
   &::-webkit-slider-runnable-track {
     height: 12px;
-    background: #fff;
-    border-radius: 6px;
-    box-shadow: inset 0 0 0px 1px rgb(144, 144, 144);
+    background: ${props => props.theme.colors.background.main};
+    border-radius: ${props => props.theme.borderRadius};
+    box-shadow: inset 0 0 0px 1px ${props => props.theme.colors.border.main};
   }
   
   &::-moz-range-track {
     height: 12px;
-    background: #fff;
-    border-radius: 6px;
-    box-shadow: inset 0 0 0px 1px rgb(144, 144, 144);
+    background: ${props => props.theme.colors.background.main};
+    border-radius: ${props => props.theme.borderRadius};
+    box-shadow: inset 0 0 0px 1px ${props => props.theme.colors.border.main};
   }
   
   &:active::-webkit-slider-thumb {
@@ -138,7 +138,7 @@ const StepMarker = styled.div<{ position: string }>`
   left: ${props => props.position};
   width: 1px;
   height: 12px;
-  background-color: #888888;
+  background-color: ${props => props.theme.colors.border.main};
   transform: translateX(-50%);
 `;
 
@@ -160,7 +160,7 @@ const StepValue = styled.span<StepValueProps>`
   top: 0; /* Position directly below the ticks */
   left: ${props => props.position};
   transform: translateX(-50%);
-  color: #000;
+  color: ${props => props.theme.colors.text.primary};
   font-size: 22px;
   font-weight: ${props => props.isSelected ? 'bold' : 'normal'};
   text-align: center;
@@ -206,7 +206,8 @@ const Slider: React.FC<SliderProps> = ({
   
   return (
     <SliderContainer className={className}>
-      <Label htmlFor={uniqueId}>{label}: {value}</Label>
+      <Label htmlFor={uniqueId}>{label}{/* : {value} */}</Label>
+      {/* the above value adds a readout of the slider value next to the label. we probably don't want that */}
       <SliderTrack>
         <SliderInputContainer>
           <SliderInput

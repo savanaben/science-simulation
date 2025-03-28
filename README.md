@@ -106,4 +106,3 @@ This project is configured for deployment to GitHub Pages. To deploy:
 npm run deploy
 ```
 
-The site will be available at: https://yourusername.github.io/science-simulation/

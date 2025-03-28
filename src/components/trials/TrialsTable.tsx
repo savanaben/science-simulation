@@ -27,11 +27,11 @@ const Table = styled.table`
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid #696969;
+  border: 1px solid ${props => props.theme.colors.background.tableBorder};
 `;
 
 const TableHead = styled.thead`
-  background-color: #E6F1FF;
+  background-color: ${props => props.theme.colors.background.tableHeader};
 `;
 
 interface AnimatedRowProps {
@@ -63,8 +63,8 @@ const TableRow = styled.tr<AnimatedRowProps>`
       left: 0;
       right: 0;
       bottom: 0;
-      box-shadow: inset 0 0 0 3px #8a2be2; /* Purple outline */
-      background-color: rgba(138, 43, 226, 0.1); /* Light purple background */
+      box-shadow: inset 0 0 0 3px ${props => props.theme.colors.accent}; /* Theme accent color for outline */
+      background-color: ${props => props.theme.colors.background.highlighted}; /* Theme highlighted background */
       pointer-events: none;
       animation: pulseHighlight 1s ease-out forwards;
       z-index: 1;
@@ -104,8 +104,8 @@ const EmptyRow = styled(TableRow)`
 const TableHeader = styled.th`
   padding: 0.4rem;
   text-align: center;
-  border-bottom: 2px solid #696969;
-  border-right: 1px solid #696969;
+  border-bottom: 2px solid ${props => props.theme.colors.background.tableBorder};
+  border-right: 1px solid ${props => props.theme.colors.background.tableBorder};
   font-size: 22px;
   
   &:last-child {
@@ -116,10 +116,10 @@ const TableHeader = styled.th`
 const TableCell = styled.td`
   padding: 0.4rem;
   text-align: center;
-  border-bottom: 1px solid #696969;
-  border-right: 1px solid #696969;
+  border-bottom: 1px solid ${props => props.theme.colors.background.tableBorder};
+  border-right: 1px solid ${props => props.theme.colors.background.tableBorder};
   transition: all 300ms ease-out;
-  background-color: white;
+  background-color: ${props => props.theme.colors.background.main};
   font-size: 22px;
   position: relative;
   z-index: 0;
@@ -134,42 +134,51 @@ const TableCell = styled.td`
   }
 `;
 
+// Add a TrashIcon component that inherits color
+const TrashIcon = () => (
+  <svg width="21" height="22" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path 
+      fillRule="evenodd" 
+      clipRule="evenodd" 
+      d="M5.9375 2.11111C5.9375 0.883588 6.98055 0 8.125 0H12.875C14.0195 0 15.0625 0.883588 15.0625 2.11111V4.44444H18.8016C18.8081 4.44438 18.8147 4.44438 18.8212 4.44444H20C20.5523 4.44444 21 4.89216 21 5.44444C21 5.99673 20.5523 6.44444 20 6.44444H19.7391L18.7797 19.0122C18.6469 20.7509 17.1258 22 15.4136 22H5.58641C3.87419 22 2.35308 20.7509 2.22035 19.0122L1.26093 6.44444H1C0.447715 6.44444 0 5.99673 0 5.44444C0 4.89216 0.447715 4.44444 1 4.44444H2.17876C2.18531 4.44438 2.19185 4.44438 2.19838 4.44444H5.9375V2.11111ZM3.26675 6.44444L4.21454 18.86C4.25936 19.4471 4.80659 20 5.58641 20H15.4136C16.1934 20 16.7406 19.4471 16.7855 18.86L17.7333 6.44444H3.26675ZM13.0625 4.44444H7.9375V2.11111C7.9375 2.1028 7.93927 2.08303 7.96854 2.05564C7.99896 2.02718 8.05188 2 8.125 2H12.875C12.9481 2 13.001 2.02718 13.0315 2.05564C13.0607 2.08303 13.0625 2.1028 13.0625 2.11111V4.44444ZM8.125 8.88889C8.67728 8.88889 9.125 9.3366 9.125 9.88889V16.5556C9.125 17.1078 8.67728 17.5556 8.125 17.5556C7.57272 17.5556 7.125 17.1078 7.125 16.5556V9.88889C7.125 9.3366 7.57272 8.88889 8.125 8.88889ZM12.875 8.88889C13.4273 8.88889 13.875 9.3366 13.875 9.88889V16.5556C13.875 17.1078 13.4273 17.5556 12.875 17.5556C12.3227 17.5556 11.875 17.1078 11.875 16.5556V9.88889C11.875 9.3366 12.3227 8.88889 12.875 8.88889Z" 
+      fill="currentColor"
+    />
+  </svg>
+);
+
 const DeleteButton = styled.button`
   background-color: transparent;
-  color: #4a90e2; /* Blue color */
-  border: 1px solid #949494;
-  border-radius: 4px;
+  color: ${props => props.theme.colors.primaryBlue.text};
+  border: 1px solid ${props => props.theme.colors.border.main};
+  border-radius: ${props => props.theme.borderRadius};
   width: 32px;
   height: 35px;
   display: flex;
-  padding: 0.4rem;
+  padding: 0rem;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
   
   &:hover {
-    background-color: rgba(74, 144, 226, 0.1); /* Light blue background on hover */
+    background-color: ${props => props.theme.colors.background.hover};
   }
   
-  /* Image styling */
-  img {
-    filter: none; /* Default state - no filter */
+  /* SVG will inherit the color from the button */
+  svg {
+  
   }
   
   /* Disabled state */
   &:disabled {
-    background-color:rgb(232, 232, 232); /* Light gray fill */
+    background-color: ${props => props.theme.colors.background.disabled};
     cursor: not-allowed;
     opacity: 1; /* Keep full opacity */
-    border: 1px solid rgb(255, 255, 255);
+    border: 1px solid ${props => props.theme.colors.background.main};
+    color: ${props => props.theme.colors.text.disabled}; /* Use the disabled text color */
     
     &:hover {
-      background-color: #f0f0f0; /* Keep the same background on hover */
-    }
-    
-    img {
-     filter: grayscale(1) brightness(1.4); /* Blue filter for the trash icon */
+      background-color: ${props => props.theme.colors.background.disabled};
     }
   }
 `;
@@ -178,7 +187,7 @@ const SectionTitle = styled.h2`
   margin-top: 0;
   margin-bottom: 0.5rem;
   font-size: 24px;
-  color: #333;
+  color: ${props => props.theme.colors.text.primary};
   text-align: center;
 `;
 
@@ -386,33 +395,34 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
   // Always render the table with headers, even if there are no trials
   return (
     <TableContainer className={className} ref={ref}>
-      <SectionTitle>Data Table</SectionTitle>
+      <SectionTitle id="data-table-title">Data Table</SectionTitle>
       <AnimatedTableContainer>
         <TableWrapper 
           ref={tableWrapperRef}
           isAnimating={isTableAnimating}
           animationDuration={animationDuration}
         >
-          <Table>
+          <Table aria-labelledby="data-table-title" role="grid">
             <TableHead>
               <TableRow 
                 translateY="0"
                 isAnimating={false}
                 animationDuration={animationDuration}
+                role="row"
               >
-                <TableHeader>Trial</TableHeader>
+                <TableHeader role="columnheader" scope="col">Trial</TableHeader>
                 
                 {/* Dynamic input headers */}
                 {simulationConfig.inputs.map(input => (
-                  <TableHeader key={`input-${input.id}`}>{input.label}</TableHeader>
+                  <TableHeader key={`input-${input.id}`} role="columnheader" scope="col">{input.label}</TableHeader>
                 ))}
                 
                 {/* Dynamic output headers */}
                 {simulationConfig.outputs.map(output => (
-                  <TableHeader key={`output-${output.id}`}>{output.label}</TableHeader>
+                  <TableHeader key={`output-${output.id}`} role="columnheader" scope="col">{output.label}</TableHeader>
                 ))}
                 
-                <TableHeader></TableHeader>
+                <TableHeader role="columnheader" scope="col" aria-label="Actions"></TableHeader>
               </TableRow>
             </TableHead>
             <tbody>
@@ -422,26 +432,28 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
                   translateY="0"
                   isAnimating={false}
                   animationDuration={animationDuration}
+                  role="row"
+                  aria-label="No trials have been run yet"
                 >
-                  <TableCell></TableCell>
+                  <TableCell role="gridcell"></TableCell>
                   
                   {/* Empty cells for inputs */}
                   {simulationConfig.inputs.map(input => (
-                    <TableCell key={`empty-input-${input.id}`}></TableCell>
+                    <TableCell key={`empty-input-${input.id}`} role="gridcell"></TableCell>
                   ))}
                   
                   {/* Empty cells for outputs */}
                   {simulationConfig.outputs.map(output => (
-                    <TableCell key={`empty-output-${output.id}`}></TableCell>
+                    <TableCell key={`empty-output-${output.id}`} role="gridcell"></TableCell>
                   ))}
                   
-                  <TableCell>
+                  <TableCell role="gridcell">
                     <DeleteButton 
                       disabled={true}
                       title="Delete trial"
-                      aria-label="Delete trial"
+                      aria-label="Delete trial button (disabled)"
                     >
-                      <img src={new URL('../../assets/img/trash.svg', import.meta.url).href} alt="Delete" />
+                      <TrashIcon />
                     </DeleteButton>
                   </TableCell>
                 </EmptyRow>
@@ -471,19 +483,21 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
                         data-trial-id={trial.id}
                         data-highlighted={trial.id === highlightedRowId}
                         isHighlighted={trial.id === highlightedRowId}
+                        role="row"
+                        aria-label={`Trial ${trial.id}`}
                       >
-                        <TableCell>{trial.id}</TableCell>
+                        <TableCell role="gridcell">{trial.id}</TableCell>
                         
                         {/* Dynamic input values */}
                         {simulationConfig.inputs.map(input => (
-                          <TableCell key={`input-${input.id}-${trial.id}`}>
+                          <TableCell key={`input-${input.id}-${trial.id}`} role="gridcell">
                             {formatValue(trial.inputs[input.id] || 'N/A')}
                           </TableCell>
                         ))}
                         
                         {/* Dynamic output values */}
                         {simulationConfig.outputs.map(output => (
-                          <TableCell key={`output-${output.id}-${trial.id}`}>
+                          <TableCell key={`output-${output.id}-${trial.id}`} role="gridcell">
                             {formatValue(
                               trial.outputs[output.id] !== undefined ? trial.outputs[output.id] : 'N/A',
                               output.unit
@@ -491,13 +505,13 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
                           </TableCell>
                         ))}
                         
-                        <TableCell>
+                        <TableCell role="gridcell">
                           <DeleteButton 
                             onClick={() => handleDeleteTrial(trial.id)}
                             title="Delete trial"
-                            aria-label="Delete trial"
+                            aria-label={`Delete trial ${trial.id}`}
                           >
-                            <img src={new URL('../../assets/img/trash.svg', import.meta.url).href} alt="Delete" />
+                            <TrashIcon />
                           </DeleteButton>
                         </TableCell>
                       </TableRow>
@@ -529,7 +543,7 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
                           title="Delete trial"
                           aria-label="Delete trial"
                         >
-                          <img src={new URL('../../assets/img/trash.svg', import.meta.url).href} alt="Delete" />
+                          <TrashIcon />
                         </DeleteButton>
                       </TableCell>
                     </EmptyRow>
