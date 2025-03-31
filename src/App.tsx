@@ -25,6 +25,41 @@ const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 1rem 0 1rem;
+`;
+
+// Two-panel layout container
+const TwoPanelLayout = styled.div`
+  display: flex;
+  max-width: 1366px;
+  margin: 0 auto;
+
+  padding: 26.66px 0px;
+  
+  @media (max-width: 992px) {
+    flex-direction: column;
+  }
+`;
+
+const LeftPanel = styled.div`
+  width: 60%;
+  padding: 0px 46.66px;
+  box-shadow: 8px 0 8px -8px #aaa;
+  
+  @media (max-width: 992px) {
+    width: auto;
+    box-shadow: none;
+
+  }
+`;
+
+const RightPanel = styled.div`
+  width: 40%;
+  padding: 0px 46.66px;
+  
+  @media (max-width: 992px) {
+    width: auto;
+  }
 `;
 
 const SimulationWrapper = styled.div`
@@ -33,8 +68,10 @@ const SimulationWrapper = styled.div`
   background-color: ${props => props.theme.colors.background.surface};
   padding: 0.75rem;
   transition: background-color 0.3s ease, border-color 0.3s ease;
-  max-width: fit-content;
+
   margin: 0 auto;
+  container-type: inline-size;
+  container-name: simulation-container;
 `;
 
 const Title = styled.h1`
@@ -53,7 +90,8 @@ const MainContent = styled.main`
   gap: 1rem;
   margin-bottom: 1rem;
 
-  @media (max-width: 768px) {
+  /* Using container query with named container */
+  @container simulation-container (max-width: 600px) {
     grid-template-columns: 1fr;
   }
 `;
@@ -67,6 +105,10 @@ const SimulationGroup = styled.div`
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
+  
+  @container simulation-container (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const InputTitle = styled.h2`
@@ -89,7 +131,7 @@ const RunButton = styled.button`
   color: ${props => props.theme.colors.text.onPrimary};
   border: 2px solid ${props => props.theme.colors.primaryBlue.border};
   border-radius: ${props => props.theme.borderRadius};
-  padding: 12px 32px;
+  padding: 8px 12px;
   font-size: 1rem;
   width: fit-content;
   cursor: pointer;
@@ -126,6 +168,16 @@ const SimulationSelector = styled.select`
   font-size: 1rem;
   margin-right: 1rem;
   width: 100%;
+`;
+
+const ContextText = styled.div`
+  color: ${props => props.theme.colors.text.primary};
+`;
+
+const SectionTitle = styled.h2`
+  color: ${props => props.theme.colors.text.primary};
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
 `;
 
 function App() {
@@ -341,45 +393,66 @@ function App() {
         <ThemeToggle />
       </Header>
       
-      <SimulationWrapper>
-        <MainContent>
-          <InputContainer>
-            <InputTitle>{simulationConfig.name}</InputTitle>
-            {simulationConfig.description && (
-              <Description>{simulationConfig.description}</Description>
-            )}
+      <TwoPanelLayout>
+        <LeftPanel>
+          <ContextText>
+            <SectionTitle>Simulation Context</SectionTitle>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+            <p>Suspendisse in orci enim. Etiam gravida euismod ultricies. Donec congue mattis ligula non maximus. Suspendisse potenti. Aliquam dignissim pulvinar ex, a pretium felis vehicula quis.</p>
+          </ContextText>
+          <SimulationWrapper>
+            <MainContent>
+              <InputContainer>
+                <InputTitle>{simulationConfig.name}</InputTitle>
+                {simulationConfig.description && (
+                  <Description>{simulationConfig.description}</Description>
+                )}
+                
+                <InputPanel 
+                  simulationConfig={simulationConfig} 
+                  onInputChange={handleInputChange} 
+                  isSimulationRunning={isSimulationRunning}
+                />
+                <RunButton 
+                  onClick={runSimulation} 
+                  disabled={!areAllInputsSelected() || isSimulationRunning}
+                  aria-label="Run Simulation with current inputs"
+                >
+                  Run Simulation
+                </RunButton>
+                {validationError && <ErrorMessage>{validationError}</ErrorMessage>}
+              </InputContainer>
+              
+              <SimulationGroup>
+                <RiveAnimation
+                  ref={riveAnimationRef}
+                  simulationConfig={simulationConfig}
+                  inputValues={inputValues}
+                />
+              </SimulationGroup>
+            </MainContent>
             
-            <InputPanel 
-              simulationConfig={simulationConfig} 
-              onInputChange={handleInputChange} 
-              isSimulationRunning={isSimulationRunning}
-            />
-            <RunButton 
-              onClick={runSimulation} 
-              disabled={!areAllInputsSelected() || isSimulationRunning}
-              aria-label="Run Simulation with current inputs"
-            >
-              Run Simulation
-            </RunButton>
-            {validationError && <ErrorMessage>{validationError}</ErrorMessage>}
-          </InputContainer>
-          
-          <SimulationGroup>
-            <RiveAnimation
-              ref={riveAnimationRef}
+            <TrialsTable 
               simulationConfig={simulationConfig}
-              inputValues={inputValues}
+              trials={trials} 
+              onDeleteTrial={deleteTrial}
+              ref={trialsTableRef}
             />
-          </SimulationGroup>
-        </MainContent>
+          </SimulationWrapper>
+        </LeftPanel>
         
-        <TrialsTable 
-          simulationConfig={simulationConfig}
-          trials={trials} 
-          onDeleteTrial={deleteTrial}
-          ref={trialsTableRef}
-        />
-      </SimulationWrapper>
+        <RightPanel>
+          <SectionTitle>Additional Information</SectionTitle>
+          <ContextText>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin nibh augue, suscipit a, scelerisque sed, lacinia in, mi. Cras vel lorem. Etiam pellentesque aliquet tellus. Phasellus pharetra nulla ac diam.</p>
+            
+            <p>Quisque semper justo at risus. Donec venenatis, turpis vel hendrerit interdum, dui ligula ultricies purus, sed posuere libero dui id orci. Nam congue, pede vitae dapibus aliquet, elit magna vulputate arcu, vel tempus metus leo non est.</p>
+            
+            <p>Etiam sit amet lectus quis est congue mollis. Phasellus congue lacus eget neque. Phasellus ornare, ante vitae consectetuer consequat, purus sapien ultricies dolor, et mollis pede metus eget nisi.</p>
+            
+          </ContextText>
+        </RightPanel>
+      </TwoPanelLayout>
       
       {/* Max Trials Modal */}
       <Modal

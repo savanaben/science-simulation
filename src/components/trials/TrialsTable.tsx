@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 import { SimulationConfig } from '../../config/simulationConfig';
+import { useTheme } from '../../theme/ThemeContext';
 
 // Define the structure of a trial
 export interface Trial {
@@ -20,7 +21,7 @@ interface TrialsTableProps {
 
 // Styled components for the TrialsTable
 const TableContainer = styled.div`
-  overflow-x: auto;
+  
 `;
 
 const Table = styled.table`
@@ -28,6 +29,7 @@ const Table = styled.table`
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid ${props => props.theme.colors.background.tableBorder};
+  position: relative; /* Required for proper positioning of sticky elements */
 `;
 
 const TableHead = styled.thead`
@@ -44,13 +46,11 @@ interface AnimatedRowProps {
 const TableRow = styled.tr<AnimatedRowProps>`
   position: relative;
   
-  /* Only apply transition when animating */
-  ${props => props.isAnimating && css`
+  /* Only apply transition and transform when actually animating with a non-zero value */
+  ${props => props.isAnimating && props.translateY !== '0' && css`
     transition: transform ${props.animationDuration}ms ease-out;
+    transform: translateY(${props.translateY});
   `}
-  
-  /* Positioning */
-  transform: translateY(${props => props.translateY});
   
   /* Highlight effect for new rows */
   ${props => props.isHighlighted && css`
@@ -196,21 +196,53 @@ interface AnimatedTableWrapperProps {
   animationDuration: number;
 }
 
-// Add a wrapper for the table that will animate its height
+// Add a container for the table to help with animation
+const AnimatedTableContainer = styled.div`
+  position: relative;
+  /* Prevent vertical scrollbar from appearing during animations */
+  overflow-y: hidden;
+`;
+
+// Update TableWrapper to conditionally apply sticky styling
 const TableWrapper = styled.div<AnimatedTableWrapperProps>`
   /* Set initial height to auto to accommodate all content */
   height: auto;
+  overflow-x: auto;
+  overflow-y: hidden; /* Prevent vertical scrollbars */
   
   /* Apply height transition when animating */
   ${props => props.isAnimating && css`
     transition: height ${props.animationDuration}ms ease-out;
   `}
-`;
 
-// Add a container for the table to help with animation
-const AnimatedTableContainer = styled.div`
-  position: relative;
-  overflow: hidden;
+  /* Style for table with sticky columns - only applied when .has-scroll class is present */
+  &.has-scroll {
+    /* Style for sticky columns (last column header and cells) */
+    & th:last-child, 
+    & td:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 3;
+      /* Add box shadow for visual separation */
+      box-shadow: 0 -1px 0 #696969, -5px 0 20px -2px rgba(0, 0, 0, 0.25);
+    }
+    
+    /* Ensure the background colors are maintained for sticky elements */
+    & th:last-child {
+      background-color: ${props => props.theme.colors.background.tableHeader};
+      border-bottom: 2px solid ${props => props.theme.colors.background.tableBorder};
+    }
+    
+    & td:last-child {
+      background-color: ${props => props.theme.colors.background.main};
+      border-bottom: 1px solid ${props => props.theme.colors.background.tableBorder};
+    }
+    
+    /* Remove bottom border for the last row's sticky cell */
+    & tbody tr:last-child td:last-child {
+      border-bottom: none;
+    }
+  }
 `;
 
 /**
@@ -250,6 +282,9 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
   // Track if we're in the middle of an animation
   const animatingRef = useRef(false);
 
+  // Get the current theme to monitor theme changes
+  const { theme } = useTheme();
+
   // Format a value for display
   const formatValue = (value: string | number, unit?: string): string => {
     if (unit) {
@@ -270,6 +305,9 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
       animatingRef.current = false;
       return;
     }
+    
+    // Store current scroll state before making any changes
+    const hasScroll = tableWrapperRef.current?.classList.contains('has-scroll');
     
     // Calculate row height if not already set
     if (!rowHeightRef.current) {
@@ -308,6 +346,12 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
     if (tableWrapperRef.current) {
       const currentHeight = tableWrapperRef.current.offsetHeight;
       tableWrapperRef.current.style.height = `${currentHeight}px`;
+      
+      // If it was sticky before, ensure it remains sticky during animation
+      if (hasScroll) {
+        tableWrapperRef.current.classList.add('has-scroll');
+      }
+      
       // Force a reflow to ensure the height is applied before transitioning
       void tableWrapperRef.current.offsetHeight;
       
@@ -315,6 +359,11 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
       setTimeout(() => {
         if (tableWrapperRef.current) {
           tableWrapperRef.current.style.height = `${currentHeight - rowHeightRef.current}px`;
+          
+          // Make sure the scroll class is maintained
+          if (hasScroll) {
+            tableWrapperRef.current.classList.add('has-scroll');
+          }
         }
       }, 0);
     }
@@ -341,6 +390,19 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
         // Reset the table wrapper height to auto
         if (tableWrapperRef.current) {
           tableWrapperRef.current.style.height = 'auto';
+          
+          // Recheck for horizontal scrolling after animation
+          setTimeout(() => {
+            if (tableWrapperRef.current) {
+              // Reapply sticky column if necessary or if it was sticky before
+              const needsScroll = tableWrapperRef.current.scrollWidth > tableWrapperRef.current.clientWidth;
+              if (needsScroll || hasScroll) {
+                tableWrapperRef.current.classList.add('has-scroll');
+              } else {
+                tableWrapperRef.current.classList.remove('has-scroll');
+              }
+            }
+          }, 10); // Small delay to ensure DOM has updated
         }
         animatingRef.current = false;
       }, 50);
@@ -391,6 +453,38 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
 
   // Determine if we should show the empty row
   const shouldShowEmptyRow = trials.length < simulationConfig.maxTrials;
+
+  // Check and update scroll status whenever trials change, window resizes, or theme changes
+  useEffect(() => {
+    const tableWrapper = tableWrapperRef.current;
+    if (!tableWrapper) return;
+    
+    // Function to check if horizontal scrolling is needed
+    const checkForScroll = () => {
+      if (tableWrapper.scrollWidth > tableWrapper.clientWidth) {
+        tableWrapper.classList.add('has-scroll');
+      } else {
+        tableWrapper.classList.remove('has-scroll');
+      }
+    };
+    
+    // Check initially
+    checkForScroll();
+    
+    // Also check on window resize
+    window.addEventListener('resize', checkForScroll);
+    
+    // Add a small delay for theme changes to complete re-rendering
+    const themeChangeTimer = setTimeout(() => {
+      checkForScroll();
+    }, 50);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', checkForScroll);
+      clearTimeout(themeChangeTimer);
+    };
+  }, [trials, simulationConfig, theme]); // Added theme dependency
 
   // Always render the table with headers, even if there are no trials
   return (
