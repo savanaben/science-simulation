@@ -29,7 +29,7 @@ const Title = styled.h2`
 // Styled container for the Rive animation
 const AnimationContainer = styled.div`
   width: 100%;
-  height: 370px;
+  max-height: 380px;
   border-radius: 8px;
   overflow: hidden;
   display: flex;
@@ -37,9 +37,6 @@ const AnimationContainer = styled.div`
   align-items: center;
   position: relative;
   
-  /* Ensure the container has a minimum size */
-  min-width: 370px;
-  min-height: 370px;
   
   /* Ensure the container maintains aspect ratio */
   aspect-ratio: 1 / 1;

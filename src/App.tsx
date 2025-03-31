@@ -49,6 +49,7 @@ const LeftPanel = styled.div`
   @media (max-width: 992px) {
     width: auto;
     box-shadow: none;
+    padding: 0px 1rem;
 
   }
 `;
@@ -59,6 +60,7 @@ const RightPanel = styled.div`
   
   @media (max-width: 992px) {
     width: auto;
+    padding: 0px 1rem;
   }
 `;
 
