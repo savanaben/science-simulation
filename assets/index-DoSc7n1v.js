@@ -306,7 +306,7 @@ To resolve, you may need to:`,"1. Check your network connection","2. Set a new W
   text-align: left;
 `,Ug=Ut.div`
   width: 100%;
-  height: 370px;
+  max-height: 380px;
   border-radius: 8px;
   overflow: hidden;
   display: flex;
@@ -314,9 +314,6 @@ To resolve, you may need to:`,"1. Check your network connection","2. Set a new W
   align-items: center;
   position: relative;
   
-  /* Ensure the container has a minimum size */
-  min-width: 370px;
-  min-height: 370px;
   
   /* Ensure the container maintains aspect ratio */
   aspect-ratio: 1 / 1;
@@ -631,6 +628,7 @@ To resolve, you may need to:`,"1. Check your network connection","2. Set a new W
   @media (max-width: 992px) {
     width: auto;
     box-shadow: none;
+    padding: 0px 1rem;
 
   }
 `,gy=Ut.div`
@@ -639,6 +637,7 @@ To resolve, you may need to:`,"1. Check your network connection","2. Set a new W
   
   @media (max-width: 992px) {
     width: auto;
+    padding: 0px 1rem;
   }
 `,yy=Ut.div`
   border: 1px solid ${l=>l.theme.colors.border.main};
