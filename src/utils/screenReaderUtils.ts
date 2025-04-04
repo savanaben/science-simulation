@@ -84,8 +84,7 @@ export const generateInputSummary = (
 export const generateSimulationAnnouncement = (
   simulationConfig: SimulationConfig,
   inputValues: Record<string, string | number>,
-  trialNumber: number,
-  rowNumber: number
+  trialNumber: number
 ): string => {
   // Part 1: Input summary
   const inputSummary = generateInputSummary(simulationConfig, inputValues);
@@ -95,7 +94,7 @@ export const generateSimulationAnnouncement = (
     "The simulation runs with the given parameters.";
   
   // Part 3: Starting information
-  const startInfo = `Starting trial ${trialNumber} which will be added at row ${rowNumber}. `;
+  const startInfo = `Starting trial ${trialNumber}`;
   
   // Combine all parts (without completion info)
   return `${inputSummary} ${startInfo}${animationDescription}`;

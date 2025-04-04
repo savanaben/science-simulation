@@ -18,12 +18,24 @@ const Panel = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  align-items: flex-start;
   
   /* Change to row layout when the simulation container is narrow */
   @container simulation-container (max-width: 600px) {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 1.3rem;
+    gap: 1rem;
+  }
+`;
+
+// Wrapper for each input component
+const InputWrapper = styled.div`
+  /* Add light gray background and padding when in collapsed view */
+  @container simulation-container (max-width: 600px) {
+    background-color: ${props => props.theme.colors.background.surfaceSecondary};
+    padding: 0.5rem;
+    border-radius: ${props => props.theme.borderRadius};
+    border: 1px solid ${props => props.theme.colors.border.subtle};
   }
 `;
 
@@ -86,41 +98,44 @@ const InputPanel: React.FC<InputPanelProps> = ({
     switch (input.controlType) {
       case InputControlType.Dropdown:
         return (
-          <Dropdown
-            key={input.id}
-            label={input.label}
-            options={input.options || []}
-            value={value as string}
-            onChange={(newValue) => handleInputChange(input.id, newValue)}
-            disabled={isSimulationRunning}
-          />
+          <InputWrapper key={input.id}>
+            <Dropdown
+              label={input.label}
+              options={input.options || []}
+              value={value as string}
+              onChange={(newValue) => handleInputChange(input.id, newValue)}
+              disabled={isSimulationRunning}
+            />
+          </InputWrapper>
         );
         
       case InputControlType.Slider:
         return (
-          <Slider
-            key={input.id}
-            label={input.label}
-            min={input.min || 0}
-            max={input.max || 100}
-            step={input.step || 1}
-            value={value as number}
-            onChange={(newValue) => handleInputChange(input.id, newValue)}
-            disabled={isSimulationRunning}
-          />
+          <InputWrapper key={input.id}>
+            <Slider
+              label={input.label}
+              min={input.min || 0}
+              max={input.max || 100}
+              step={input.step || 1}
+              value={value as number}
+              onChange={(newValue) => handleInputChange(input.id, newValue)}
+              disabled={isSimulationRunning}
+            />
+          </InputWrapper>
         );
         
       case InputControlType.SegmentedController:
         return (
-          <SegmentedController
-            key={input.id}
-            label={input.label}
-            options={input.options || []}
-            value={value as string}
-            onChange={(newValue) => handleInputChange(input.id, newValue)}
-            orientation={input.orientation}
-            disabled={isSimulationRunning}
-          />
+          <InputWrapper key={input.id}>
+            <SegmentedController
+              label={input.label}
+              options={input.options || []}
+              value={value as string}
+              onChange={(newValue) => handleInputChange(input.id, newValue)}
+              orientation={input.orientation}
+              disabled={isSimulationRunning}
+            />
+          </InputWrapper>
         );
         
       default:

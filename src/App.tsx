@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import InputPanel from './components/inputs/InputPanel';
 import RiveAnimation, { RiveAnimationRef } from './components/visualization/RiveAnimation';
-import TrialsTable from './components/trials/TrialsTable';
+import TrialsTable, { TrashIcon } from './components/trials/TrialsTable';
 import { Trial } from './components/trials/TrialsTable';
 import { getOutputValues } from './utils/simulationData';
 import { getSimulationById, defaultSimulationId, simulations } from './config/simulationConfig';
@@ -10,6 +10,31 @@ import './App.css';
 import Modal from './components/common/Modal';
 import ThemeToggle from './components/common/ThemeToggle';
 import { announceToScreenReader, generateSimulationAnnouncement, generateCompletionAnnouncement } from './utils/screenReaderUtils';
+
+// Modal trash icon component
+const ModalTrashIcon = styled(({ className }) => (
+  <svg 
+    width="21" 
+    height="21" 
+    viewBox="0 0 21 22" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={{ 
+      position: 'relative',
+      top: '4px',
+    }}
+  >
+    <path 
+      fillRule="evenodd" 
+      clipRule="evenodd" 
+      d="M5.9375 2.11111C5.9375 0.883588 6.98055 0 8.125 0H12.875C14.0195 0 15.0625 0.883588 15.0625 2.11111V4.44444H18.8016C18.8081 4.44438 18.8147 4.44438 18.8212 4.44444H20C20.5523 4.44444 21 4.89216 21 5.44444C21 5.99673 20.5523 6.44444 20 6.44444H19.7391L18.7797 19.0122C18.6469 20.7509 17.1258 22 15.4136 22H5.58641C3.87419 22 2.35308 20.7509 2.22035 19.0122L1.26093 6.44444H1C0.447715 6.44444 0 5.99673 0 5.44444C0 4.89216 0.447715 4.44444 1 4.44444H2.17876C2.18531 4.44438 2.19185 4.44438 2.19838 4.44444H5.9375V2.11111ZM3.26675 6.44444L4.21454 18.86C4.25936 19.4471 4.80659 20 5.58641 20H15.4136C16.1934 20 16.7406 19.4471 16.7855 18.86L17.7333 6.44444H3.26675ZM13.0625 4.44444H7.9375V2.11111C7.9375 2.1028 7.93927 2.08303 7.96854 2.05564C7.99896 2.02718 8.05188 2 8.125 2H12.875C12.9481 2 13.001 2.02718 13.0315 2.05564C13.0607 2.08303 13.0625 2.1028 13.0625 2.11111V4.44444ZM8.125 8.88889C8.67728 8.88889 9.125 9.3366 9.125 9.88889V16.5556C9.125 17.1078 8.67728 17.5556 8.125 17.5556C7.57272 17.5556 7.125 17.1078 7.125 16.5556V9.88889C7.125 9.3366 7.57272 8.88889 8.125 8.88889ZM12.875 8.88889C13.4273 8.88889 13.875 9.3366 13.875 9.88889V16.5556C13.875 17.1078 13.4273 17.5556 12.875 17.5556C12.3227 17.5556 11.875 17.1078 11.875 16.5556V9.88889C11.875 9.3366 12.3227 8.88889 12.875 8.88889Z" 
+      fill="currentColor"
+    />
+  </svg>
+))`
+  color: ${props => props.theme.colors.primaryBlue.text};
+`;
 
 // Styled components for the App
 const AppContainer = styled.div`
@@ -302,8 +327,7 @@ function App() {
     const announcement = generateSimulationAnnouncement(
       simulationConfig,
       inputValues,
-      nextTrialId,
-      rowNumber
+      nextTrialId
     );
     
     announceToScreenReader(announcement);
@@ -405,7 +429,7 @@ function App() {
           <SimulationWrapper>
             <MainContent>
               <InputContainer>
-                <InputTitle>{simulationConfig.name}</InputTitle>
+                <InputTitle>Inputs</InputTitle>
                 {simulationConfig.description && (
                   <Description>{simulationConfig.description}</Description>
                 )}
@@ -463,8 +487,10 @@ function App() {
         title="Maximum Trials Reached"
       >
         <p>
-          You have reached the maximum number of trials ({simulationConfig?.maxTrials}).
-          Please delete one or more existing trials before running a new simulation.
+          You can only store <strong>{simulationConfig?.maxTrials}</strong> trials in the Data Table.
+        </p>
+        <p>
+          Delete a trial with the Delete button (<ModalTrashIcon />) to run more trials.
         </p>
       </Modal>
     </AppContainer>

@@ -19,6 +19,7 @@ export interface Theme {
     background: {
       main: string;
       surface: string;
+      surfaceSecondary: string; // New secondary surface color
       input: string;
       tableHeader: string;
       tableBorder: string;
@@ -39,6 +40,7 @@ export interface Theme {
     // Border colors
     border: {
       main: string;
+      subtle: string; // New subtle border color
       input: string;
       active: string;
       focus: string;
@@ -49,6 +51,13 @@ export interface Theme {
     warning: string;
     success: string;
     info: string;
+  };
+  
+  // Shadows
+  shadows: {
+    stickyColumnStart: string; // Start color for sticky column gradient
+    stickyColumnEnd: string;   // End color for sticky column gradient
+    stickyColumnBorder: string; // Shadow that acts as a border fix for sticky columns
   };
   
   // Additional theme settings
@@ -80,6 +89,7 @@ export const lightTheme: Theme = {
     background: {
       main: '#ffffff',
       surface: '#F5F5F5',
+      surfaceSecondary: '#E4E4E4', // New secondary surface color for light theme
       input: '#ffffff',
       tableHeader: '#E6F1FF',
       tableBorder: 'rgb(105, 105, 105)',
@@ -98,6 +108,7 @@ export const lightTheme: Theme = {
     
     border: {
       main: '#909090',
+      subtle: '#D0D0D0', // New subtle border color for light theme
       input: '#696969',
       active: 'rgb(36, 120, 204)', // Same as primary
       focus: '#000000',
@@ -107,6 +118,12 @@ export const lightTheme: Theme = {
     warning: '#faad14',
     success: '#52c41a',
     info: '#1890ff',
+  },
+  
+  shadows: {
+    stickyColumnStart: 'rgba(0, 0, 0, 0.25)',
+    stickyColumnEnd: 'rgba(0, 0, 0, 0.05)',
+    stickyColumnBorder: '0 -1px 0px #696969' // Light theme border shadow
   },
   
   borderRadius: '6px',
@@ -135,8 +152,9 @@ export const darkTheme: Theme = {
     },
     
     background: {
-      main: '#121212',
+      main: '#000000',
       surface: '#1f1f1f',
+      surfaceSecondary: '#3C3C3C', // New secondary surface color for dark theme
       input: '#000',
       tableHeader: 'rgb(4, 59, 128)',
       tableBorder: 'rgb(144, 144, 144)',
@@ -155,6 +173,7 @@ export const darkTheme: Theme = {
     
     border: {
       main: 'rgb(144, 144, 144)',
+      subtle: '#505050', // New subtle border color for dark theme
       input: '#d8d8d8',
       active: 'rgb(64, 169, 255)', // Same as primary
       focus: '#ffffff',
@@ -164,6 +183,12 @@ export const darkTheme: Theme = {
     warning: '#ffc53d',
     success: '#73d13d',
     info: '#40a9ff',
+  },
+  
+  shadows: {
+    stickyColumnStart: 'rgba(0, 0, 0, 0.6)', 
+    stickyColumnEnd: 'rgba(0, 0, 0, 0.1)',
+    stickyColumnBorder: '0 -1px 0px #909090' // Dark theme border shadow
   },
   
   borderRadius: '6px',

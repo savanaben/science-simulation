@@ -200,6 +200,8 @@ const SegmentedController: React.FC<SegmentedControllerProps> = ({
                 onBlur={handleBlur}
                 disabled={disabled}
                 tabIndex={isSelected || (index === 0 && !value) ? 0 : -1} // Only allow tabbing to the selected or first option
+                aria-setsize={options.length} // Total number of items in the group
+                aria-posinset={index + 1} // Position of this item in the group
               />
               {option}
             </Segment>

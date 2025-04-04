@@ -30,7 +30,6 @@ const Title = styled.h2`
 const AnimationContainer = styled.div`
   width: 100%;
   max-height: 380px;
-  border-radius: 8px;
   overflow: hidden;
   display: flex;
   justify-content: center;

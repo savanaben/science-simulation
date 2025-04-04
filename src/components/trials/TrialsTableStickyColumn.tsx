@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, forwardRef, useCallback } from 'react';
 import styled, { css } from 'styled-components';
 import { SimulationConfig } from '../../config/simulationConfig';
 import { useTheme } from '../../theme/ThemeContext';
-import { announceToScreenReader } from '../../utils/screenReaderUtils';
 
 // Define the structure of a trial
 export interface Trial {
@@ -35,26 +34,6 @@ const TableWithButtonsContainer = styled.div`
 const ScrollableTableContainer = styled.div`
   flex: 1;
   overflow-x: auto;
-  /* Add border to bottom of container instead */
-  border-bottom: 1px solid ${props => props.theme.colors.background.tableBorder};
-  position: relative;
-  
-  /* Shadow gradient on right edge when scrollable */
-  &.has-scroll:not(.scrolled-to-end)::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: 18px;
-    pointer-events: none;
-    background: linear-gradient(to right, 
-      transparent 0%,
-      ${props => props.theme.shadows.stickyColumnEnd} 20%, 
-      ${props => props.theme.shadows.stickyColumnStart} 100%
-    );
-    z-index: 5;
-  }
 `;
 
 // Container for the delete buttons
@@ -72,10 +51,11 @@ const ButtonPlaceholder = styled.div<{ height: string }>`
 
 // Row for delete button that can adjust its height
 const DeleteButtonRow = styled.div<{ height: string }>`
-  height: ${props => props.height || '50px'}; /* Default or specified height */
+  height: ${props => props.height || '53px'}; /* Default or specified height */
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 1px; /* Match border spacing */
 `;
 
 const Table = styled.table`
@@ -153,12 +133,12 @@ const PlaceholderRow = styled.tr<{ height: string }>`
 
 // Empty row styling - now using the same AnimatedRowProps as TableRow
 const EmptyRow = styled(TableRow)`
-  height: 50px; // Same as regular rows
+  height: 53px; // Same as regular rows
 `;
 
 // Update TableHeader to remove last-child styling for sticky column
 const TableHeader = styled.th`
-  padding: 0.5rem;
+  padding: 0.3rem;
   text-align: center;
   border-bottom: 2px solid ${props => props.theme.colors.background.tableBorder};
   border-right: 1px solid ${props => props.theme.colors.background.tableBorder};
@@ -171,7 +151,7 @@ const TableHeader = styled.th`
 
 // Update TableCell to remove last-child styling for sticky column
 const TableCell = styled.td`
-  padding: 0.5rem;
+  padding: 0.3rem;
   text-align: center;
   border-bottom: 1px solid ${props => props.theme.colors.background.tableBorder};
   border-right: 1px solid ${props => props.theme.colors.background.tableBorder};
@@ -192,10 +172,15 @@ const TableCell = styled.td`
 `;
 
 // Create a wrapper for the button to center it without breaking table layout
-
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+`;
 
 // Add a TrashIcon component that inherits color
-export const TrashIcon = () => (
+const TrashIcon = () => (
   <svg width="21" height="22" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path 
       fillRule="evenodd" 
@@ -207,7 +192,7 @@ export const TrashIcon = () => (
 );
 
 const DeleteButton = styled.button`
-  background-color: ${props => props.theme.colors.background.main};
+  background-color: transparent;
   color: ${props => props.theme.colors.primaryBlue.text};
   border: 1px solid ${props => props.theme.colors.border.main};
   border-radius: ${props => props.theme.borderRadius};
@@ -256,6 +241,15 @@ interface AnimatedTableWrapperProps {
   animationDuration: number;
 }
 
+// Add a container for the table to help with animation
+const AnimatedTableContainer = styled.div`
+  position: relative;
+  /* Prevent vertical scrollbar from appearing during animations */
+  overflow-y: hidden;
+  /* Add border to bottom of container instead */
+  border-bottom: 1px solid ${props => props.theme.colors.background.tableBorder};
+`;
+
 // Update TableWrapper to remove sticky column styling
 const TableWrapper = styled.div<AnimatedTableWrapperProps>`
   /* Set initial height to auto to accommodate all content */
@@ -266,14 +260,6 @@ const TableWrapper = styled.div<AnimatedTableWrapperProps>`
   ${props => props.isAnimating && css`
     transition: height ${props.animationDuration}ms ease-out;
   `}
-`;
-
-// Add a container for the table to help with animation
-const AnimatedTableContainer = styled.div`
-  position: relative;
-  /* Prevent vertical scrollbar from appearing during animations */
-  overflow-y: hidden;
-  /* Remove border from here since it will be on ScrollableTableContainer */
 `;
 
 /**
@@ -356,7 +342,7 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
         const firstRow = tableRows[0] as HTMLElement;
         rowHeightRef.current = firstRow.offsetHeight;
       } else {
-        rowHeightRef.current = 50; // Fallback height
+        rowHeightRef.current = 53; // Fallback height
       }
     }
     
@@ -416,10 +402,6 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
     // Wait for animation to complete before actually removing the row
     setTimeout(() => {
       onDeleteTrial(idToDelete);
-      
-      // Announce deletion to screen readers
-      announceToScreenReader(`Trial ${idToDelete} deleted`);
-      
       // Reset the states
       setRowPositions({});
       setAnimatingRows({});
@@ -500,17 +482,14 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
   // Check and update scroll status whenever trials change, window resizes, or theme changes
   useEffect(() => {
     const tableWrapper = tableWrapperRef.current;
-    const scrollableContainer = tableWrapper?.parentElement;
-    
-    if (!tableWrapper || !scrollableContainer) return;
+    if (!tableWrapper) return;
     
     // Function to check if horizontal scrolling is needed
     const checkForScroll = () => {
       if (tableWrapper.scrollWidth > tableWrapper.clientWidth) {
-        scrollableContainer.classList.add('has-scroll');
+        tableWrapper.classList.add('has-scroll');
       } else {
-        scrollableContainer.classList.remove('has-scroll');
-        scrollableContainer.classList.remove('scrolled-to-end');
+        tableWrapper.classList.remove('has-scroll');
       }
     };
     
@@ -518,9 +497,9 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
     const handleScroll = () => {
       if (tableWrapper.scrollLeft + tableWrapper.clientWidth >= tableWrapper.scrollWidth - 2) {
         // Scrolled to the end (with 2px tolerance)
-        scrollableContainer.classList.add('scrolled-to-end');
+        tableWrapper.classList.add('scrolled-to-end');
       } else {
-        scrollableContainer.classList.remove('scrolled-to-end');
+        tableWrapper.classList.remove('scrolled-to-end');
       }
     };
     
@@ -549,7 +528,7 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
       tableWrapper.removeEventListener('scroll', handleScroll);
       clearTimeout(themeChangeTimer);
     };
-  }, [trials, simulationConfig, theme]);
+  }, [trials, simulationConfig, theme]); // Added theme dependency
 
   // Function to update row heights for delete buttons
   const updateRowHeights = useCallback(() => {
@@ -746,7 +725,7 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
             
             {trials.length === 0 ? (
               // Show a disabled button for empty state
-              <DeleteButtonRow height="50px">
+              <DeleteButtonRow height="53px">
                 <DeleteButton 
                   disabled={true}
                   title="Delete trial"
@@ -773,7 +752,7 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
                   return (
                     <DeleteButtonRow 
                       key={`delete-${trial.id}`}
-                      height={rowHeights[trial.id] || '50px'}
+                      height={rowHeights[trial.id] || '53px'}
                       style={{
                         transform: animatingRows[trial.id] ? `translateY(${rowPositions[trial.id]})` : 'none',
                         transition: animatingRows[trial.id] ? `transform ${animationDuration}ms ease-out` : 'none'
@@ -793,7 +772,7 @@ const TrialsTable = forwardRef<HTMLDivElement, TrialsTableProps>(({
                 {/* Add a placeholder button for the empty row */}
                 {shouldShowEmptyRow && (
                   <DeleteButtonRow 
-                    height="50px"
+                    height="53px"
                     style={{
                       transform: emptyRowAnimating ? `translateY(${emptyRowPosition})` : 'none',
                       transition: emptyRowAnimating ? `transform ${animationDuration}ms ease-out` : 'none'
