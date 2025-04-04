@@ -171,14 +171,6 @@ const TableCell = styled.td`
   }
 `;
 
-// Create a wrapper for the button to center it without breaking table layout
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-`;
-
 // Add a TrashIcon component that inherits color
 const TrashIcon = () => (
   <svg width="21" height="22" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">

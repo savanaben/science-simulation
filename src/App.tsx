@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import InputPanel from './components/inputs/InputPanel';
 import RiveAnimation, { RiveAnimationRef } from './components/visualization/RiveAnimation';
-import TrialsTable, { TrashIcon } from './components/trials/TrialsTable';
+import TrialsTable from './components/trials/TrialsTable';
 import { Trial } from './components/trials/TrialsTable';
 import { getOutputValues } from './utils/simulationData';
 import { getSimulationById, defaultSimulationId, simulations } from './config/simulationConfig';
